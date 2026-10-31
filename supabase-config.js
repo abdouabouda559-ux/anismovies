@@ -1,5 +1,5 @@
 // تهيئة الاتصال بمشروع Supabase
-const SUPABASE_URL = 'https://cnbxvtyvghvogtwwtpxl.supabase.co';
+const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co/';
 const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2'; // ضع مفتاحك هنا
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
