@@ -6,6 +6,7 @@
   <title>أنيس موفيز - AnisMovies</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* تنسيقات التصميم الأصلي للموقع */
     body {
       font-family: Arial, sans-serif;
       background-color: #0f172a;
@@ -26,46 +27,41 @@
       font-weight: bold;
       color: #38bdf8;
     }
-    .user-info {
+    .user-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 15px;
     }
-    .user-profile {
-      display: flex;
+    .profile-badge {
+      display: none;
       align-items: center;
       gap: 10px;
       background-color: #334155;
-      padding: 5px 12px 5px 5px;
+      padding: 6px 14px;
       border-radius: 30px;
     }
-    #avatar-img {
-      width: 32px;
-      height: 32px;
+    #user-avatar {
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       object-fit: cover;
-      background-color: #475569;
     }
     #username-display {
       font-size: 14px;
       color: #38bdf8;
       font-weight: bold;
     }
-    #auth-btn {
-      background-color: #ef4444;
-      color: white;
+    .auth-btn {
+      background-color: #38bdf8;
+      color: #0f172a;
       border: none;
       padding: 8px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
     }
-    #auth-btn.login {
-      background-color: #38bdf8;
-      color: #0f172a;
-    }
-    .container {
-      padding: 40px;
+    .main-content {
+      padding: 50px;
       text-align: center;
     }
   </style>
@@ -74,83 +70,82 @@
 
   <header>
     <div class="logo">أنيس موفيز 🎬</div>
-    <div class="user-info">
-      <div class="user-profile" id="profile-container">
-        <img id="avatar-img" src="https://via.placeholder.com/150" alt="صورة البروفايل">
-        <span id="username-display">جاري التحميل...</span>
+    <div class="user-section">
+      <!-- حاوية اسم المستخدم وصورة البروفايل (تظهر عند تسجيل الدخول) -->
+      <div id="profile-badge" class="profile-badge">
+        <img id="user-avatar" src="" alt="صورة البروفايل">
+        <span id="username-display">اسم المستخدم</span>
       </div>
-      <button id="auth-btn" onclick="handleAuthAction()">تسجيل الخروج</button>
+      <!-- زر تسجيل الدخول / الخروج -->
+      <button id="auth-btn" class="auth-btn" onclick="openAuthModal()">تسجيل الدخول</button>
     </div>
   </header>
 
-  <div class="container">
-    <h1>مرحباً بك في منصة الأفلام والمسلسلات</h1>
-    <p>استمتع بأحدث الأعمال والمحتوى المميز.</p>
+  <div class="main-content">
+    <h1>أهلاً بك في منصة أنيس موفيز</h1>
+    <p>استمتع بمشاهدة أحدث الأفلام والمسلسلات بجودة عالية.</p>
   </div>
 
   <script>
-    // إعدادات اتصال Supabase الخاصة بك
-    const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co'; 
+    // إعدادات Supabase الخاصة بالمشروع
+    const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // ضع مفتاح الـ Anon الخاص بك هنا
-    
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // دالة فحص جلسة المستخدم وتحديث الهيدر تلقائياً
     async function checkUserSession() {
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
-      const usernameSpan = document.getElementById('username-display');
-      const avatarImg = document.getElementById('avatar-img');
-      const profileContainer = document.getElementById('profile-container');
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      
+      const profileBadge = document.getElementById('profile-badge');
+      const usernameDisplay = document.getElementById('username-display');
+      const userAvatar = document.getElementById('user-avatar');
       const authBtn = document.getElementById('auth-btn');
 
       if (session && session.user) {
         const userId = session.user.id;
-        profileContainer.style.display = 'flex';
-
-        // جلب اسم المستخدم وصورة البروفايل من جدول profiles
-        const { data: profile, error: profileError } = await supabaseClient
+        
+        // جلب الـ username وصورة البروفايل من جدول profiles
+        const { data: profile } = await supabaseClient
           .from('profiles')
           .select('username, avatar_url')
           .eq('id', userId)
           .single();
 
         if (profile) {
-          // عرض اسم المستخدم
-          usernameSpan.textContent = profile.username || session.user.email.split('@')[0];
-          
-          // عرض صورة البروفايل إذا كانت موجودة، أو وضع صورة افتراضية
-          if (profile.avatar_url) {
-            avatarImg.src = profile.avatar_url;
-          } else {
-            avatarImg.src = 'https://www.w3schools.com/howto/img_avatar.png'; // صورة افتراضية جاهزة
-          }
+          usernameDisplay.textContent = profile.username || session.user.email.split('@')[0];
+          userAvatar.src = profile.avatar_url || 'https://www.w3schools.com/howto/img_avatar.png';
         } else {
-          usernameSpan.textContent = session.user.email.split('@')[0];
-          avatarImg.src = 'https://www.w3schools.com/howto/img_avatar.png';
+          usernameDisplay.textContent = session.user.email.split('@')[0];
+          userAvatar.src = 'https://www.w3schools.com/howto/img_avatar.png';
         }
 
+        profileBadge.style.display = 'flex';
         authBtn.textContent = 'تسجيل الخروج';
-        authBtn.className = '';
+        authBtn.style.backgroundColor = '#ef4444';
+        authBtn.style.color = 'white';
+        authBtn.onclick = handleSignOut;
       } else {
-        profileContainer.style.display = 'none'; // إخفاء البروفايل في حال لم يكن مسجلاً
+        profileBadge.style.display = 'none';
         authBtn.textContent = 'تسجيل الدخول';
-        authBtn.className = 'login';
+        authBtn.style.backgroundColor = '#38bdf8';
+        authBtn.style.color = '#0f172a';
+        authBtn.onclick = openAuthModal;
       }
     }
 
-    async function handleAuthAction() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        // تسجيل الخروج
-        await supabaseClient.auth.signOut();
-        window.location.reload();
-      } else {
-        // توجيه لصفحة تسجيل الدخول أو فتح المودل الخاص بك
-        alert('يرجى فتح نافذة تسجيل الدخول');
-      }
+    // دالة تسجيل الخروج
+    async function handleSignOut() {
+      await supabaseClient.auth.signOut();
+      window.location.reload();
     }
 
-    // تنفيذ التحقق عند تحميل الصفحة
-    window.onload = checkUserSession;
+    // دالة فتح مودل تسجيل الدخول (يمكنك ربطها بنافذتك الحالية)
+    function openAuthModal() {
+      alert('قم بربط هذه الدالة بنافذة Modal تسجيل الدخول الخاصة بك');
+    }
+
+    // التحقق عند تحميل الصفحة
+    window.addEventListener('DOMContentLoaded', checkUserSession);
   </script>
 
 </body>
