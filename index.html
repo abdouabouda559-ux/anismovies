@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أنيس موفيز - الرئيسية</title>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Floating & Transparent Header */
+    header {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 15px;
+      z-index: 100;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 15px auto 0 auto;
+      border-radius: 14px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 20px;
+      padding: 0.4rem 1rem;
+      width: 260px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    /* Auth Buttons Header */
+    .header-auth-btns {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-login {
+      background: transparent;
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-login:hover {
+      background-color: rgba(56, 189, 248, 0.1);
+    }
+
+    .btn-signup {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-signup:hover {
+      background-color: #0ea5e9;
+    }
+
+    /* Floating & Transparent Categories Bar */
+    .categories-container {
+      position: sticky;
+      top: 85px; /* يتبع الهيدر العائم بمسافة مناسبة */
+      z-index: 90;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.7rem 1.5rem;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 10px auto 0 auto;
+      border-radius: 14px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .category-tags {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+    }
+
+    /* إخفاء شريط التمرير */
+    .category-tags::-webkit-scrollbar {
+      display: none;
+    }
+    .category-tags {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .tag {
+      background: rgba(30, 41, 59, 0.6);
+      color: #cbd5e1;
+      padding: 0.4rem 1.1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      cursor: pointer;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tag:hover, .tag.active {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+      font-weight: bold;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(rgba(15, 23, 42, 0.5), #0f172a), 
+                  url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+      margin: 1.5rem 2rem 2rem 2rem;
+      border-radius: 16px;
+    }
+
+    .hero-banner h1 {
+      font-size: 2.2rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-banner p {
+      color: #cbd5e1;
+      max-width: 600px;
+      font-size: 0.95rem;
+    }
+
+    /* Movies Grid */
+    .movies-container {
+      padding: 0 2rem;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #38bdf8;
+      border-right: 4px solid #38bdf8;
+      padding-right: 8px;
+    }
+
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .movie-card {
+      background-color: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .poster-box {
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .poster-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(15, 23, 42, 0.8);
+      color: #fbbf24;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .movie-info {
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .movie-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* Auth Modal Styling */
+    .auth-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(15, 23, 42, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .auth-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      padding: 2rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      color: #fff;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.6rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.05rem;
+      cursor: pointer;
+      font-weight: bold;
+      padding-bottom: 0.4rem;
+      transition: color 0.2s;
+    }
+
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom: 2px solid #38bdf8;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .auth-form h3 {
+      margin-bottom: 0.2rem;
+      font-size: 1.2rem;
+    }
+
+    .auth-form input {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      padding: 0.8rem;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    .auth-form input:focus {
+      border-color: #38bdf8;
+    }
+
+    .submit-btn {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background-color: #0ea5e9;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #1e293b;
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid #334155;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        width: calc(100% - 20px);
+      }
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .search-box {
+        width: 100%;
+      }
+      .categories-container {
+        width: calc(100% - 20px);
+        top: 150px;
+      }
+      .hero-banner {
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Sticky Header -->
+  <header>
+    <div class="header-right">
+      <div class="logo">أنيس موفيز</div>
+      <div class="header-auth-btns">
+        <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
+        <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
+      </div>
+    </div>
+    
+    <div class="search-box">
+      <input type="text" placeholder="ابحث عن فيلم أو مسلسل...">
+    </div>
+  </header>
+
+  <!-- Floating Sticky Categories Bar -->
+  <div class="categories-container">
+    <div class="category-tags">
+      <span class="tag active">الكل</span>
+      <span class="tag">أكشن</span>
+      <span class="tag">دراما</span>
+      <span class="tag">أنمي</span>
+      <span class="tag">خيال علمي</span>
+      <span class="tag">كوميديا</span>
+      <span class="tag">رعب</span>
+      <span class="tag">غموض</span>
+      <span class="tag">وثائقي</span>
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <h1>عالم الأكشن والإثارة</h1>
+    <p>شاهد أحدث الأفلام والمسلسلات بجودة عالية وسيرفرات مشاهدة مباشرة سريعة.</p>
+  </div>
+
+  <!-- Movies List -->
+  <div class="movies-container">
+    <h2 class="section-title">أحدث الإضافات</h2>
+    <div class="movies-grid">
+
+      <!-- Movie Card 1 -->
+      <a href="watch.php?id=1" class="movie-card">
+        <div class="poster-box">
+          <span class="badge">★ 8.5</span>
+          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Poster">
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">رحلة الفضاء المجهولة</div>
+          <div class="movie-meta">
+            <span>2024</span>
+            <span>خيال علمي</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Movie Card 2 -->
+      <a href="watch.php?id=2" class="movie-card">
+        <div class="poster-box">
+          <span class="badge">★ 7.9</span>
+          <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80" alt="Poster">
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">تحدي المغامرة</div>
+          <div class="movie-meta">
+            <span>2023</span>
+            <span>أكشن</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Movie Card 3 -->
+      <a href="watch.php?id=3" class="movie-card">
+        <div class="poster-box">
+          <span class="badge">★ 9.0</span>
+          <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80" alt="Poster">
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">سر المدينة القديمة</div>
+          <div class="movie-meta">
+            <span>2024</span>
+            <span>غموض</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Movie Card 4 -->
+      <a href="watch.php?id=4" class="movie-card">
+        <div class="poster-box">
+          <span class="badge">★ 8.1</span>
+          <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=400&q=80" alt="Poster">
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">عالم الأنمي والأساطير</div>
+          <div class="movie-meta">
+            <span>2023</span>
+            <span>أنمي</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Auth Modal Overlay -->
+  <div class="auth-modal-overlay" id="authModal">
+    <div class="auth-card">
+      <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
+        <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" onsubmit="event.preventDefault();">
+        <h3>مرحباً بك مجدداً</h3>
+        <input type="email" placeholder="البريد الإلكتروني" required>
+        <input type="password" placeholder="كلمة المرور" required>
+        <button type="submit" class="submit-btn">دخول</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" style="display: none;" onsubmit="event.preventDefault();">
+        <h3>انضم إلينا الآن</h3>
+        <input type="email" placeholder="البريد الإلكتروني" required>
+        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+        <button type="submit" class="submit-btn">إنشاء الحساب</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
+  </footer>
+
+  <script>
+    // Modal Functions
+    function openAuthModal(mode) {
+      const modal = document.getElementById('authModal');
+      modal.style.display = 'flex';
+      switchTab(mode);
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById('authModal');
+      modal.style.display = 'none';
+    }
+
+    // Switch between Login & Signup Tabs
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginTab = document.getElementById('loginTab');
+      const signupTab = document.getElementById('signupTab');
+
+      if (tab === 'login') {
+        loginForm.style.display = 'flex';
+        signupForm.style.display = 'none';
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+      } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'flex';
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+      }
+    }
+
+    // Close modal when clicking outside the auth-card
+    window.onclick = function(event) {
+      const modal = document.getElementById('authModal');
+      if (event.target === modal) {
+        closeAuthModal();
+      }
+    }
+  </script>
+</body>
+</html>
