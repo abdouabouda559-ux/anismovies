@@ -58,6 +58,17 @@
       color: #38bdf8;
     }
 
+    /* شارة عرض الفرص المتاحة */
+    .chances-badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
     .search-box {
       display: flex;
       align-items: center;
@@ -221,6 +232,7 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
 
     .movie-card:hover {
@@ -390,6 +402,7 @@
       border-top: 1px solid #334155;
       font-size: 0.85rem;
       color: #94a3b8;
+      margin-top: auto;
     }
 
     @media (max-width: 768px) {
@@ -422,6 +435,7 @@
   <header>
     <div class="header-right">
       <div class="logo">أنيس موفيز</div>
+      <div id="chancesDisplay" class="chances-badge">الفرص المتاحة: 5 / 5</div>
       <div class="header-auth-btns">
         <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
@@ -454,7 +468,7 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-      <!-- جلب الأفلام من Supabase -->
+      <!-- جلب الأفلام من Supabase مع نظام التحقق من الفرص -->
     </div>
   </div>
 
@@ -488,14 +502,81 @@
   </div>
 
   <footer>
-    <p>لمشاهدة المزيد من المحتوى، زر موقعنا https://anismoviespro.vercel.app. جميع الحقوق محفوظة &copy; 2026</p>
+    <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
   <!-- Supabase CDN & Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
-    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم لمنع أي ظهور للنافذة المنبثقة
+    // نظام إدارة الفرص (5 فرص وتجديد خلال 3 دقائق عند النفاذ)
+    const MAX_CHANCES = 5;
+    const COOLDOWN_TIME = 3 * 60 * 1000; // 3 دقائق بالمللي ثانية
+
+    function getChancesData() {
+      let chances = localStorage.getItem('user_chances');
+      let lockoutTime = localStorage.getItem('user_lockout_time');
+      const now = Date.now();
+
+      if (lockoutTime) {
+        if (now < parseInt(lockoutTime)) {
+          let remainingMs = parseInt(lockoutTime) - now;
+          return { chances: 0, locked: true, remainingMs };
+        } else {
+          // انتهى وقت الانتظار، إعادة تعيين الفرص
+          localStorage.removeItem('user_lockout_time');
+          localStorage.setItem('user_chances', MAX_CHANCES);
+          return { chances: MAX_CHANCES, locked: false, remainingMs: 0 };
+        }
+      }
+
+      if (chances === null) {
+        chances = MAX_CHANCES;
+        localStorage.setItem('user_chances', chances);
+      }
+
+      return { chances: parseInt(chances), locked: false, remainingMs: 0 };
+    }
+
+    function updateChancesDisplay() {
+      const badge = document.getElementById('chancesDisplay');
+      if (!badge) return;
+
+      const data = getChancesData();
+      if (data.locked) {
+        let minutes = Math.floor(data.remainingMs / 60000);
+        let seconds = Math.floor((data.remainingMs % 60000) / 1000);
+        badge.innerText = `نفذت الفرص! تجديد خلال: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        badge.style.color = '#f87171';
+        badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        
+        // تحديث العداد كل ثانية
+        setTimeout(updateChancesDisplay, 1000);
+      } else {
+        badge.innerText = `الفرص المتاحة: ${data.chances} / ${MAX_CHANCES}`;
+        badge.style.color = '#38bdf8';
+        badge.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+      }
+    }
+
+    function consumeChance() {
+      let data = getChancesData();
+      if (data.locked) return false;
+
+      if (data.chances > 0) {
+        data.chances -= 1;
+        localStorage.setItem('user_chances', data.chances);
+        if (data.chances === 0) {
+          // بدأت فترة الانتظار لمدة 3 دقائق
+          localStorage.setItem('user_lockout_time', Date.now() + COOLDOWN_TIME);
+        }
+        updateChancesDisplay();
+        return true;
+      }
+      return false;
+    }
+
+    // اعتراض الـ Alert لمنع النوافذ المنجزة غير المعربة
     window.alert = function(msg) {
       const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
       showFormMessage(activeForm, msg, false);
@@ -529,7 +610,6 @@
       if (e.target === document.getElementById('authModal')) closeAuthModal();
     }
 
-    // دالة عرض الرسائل المباشرة داخل الفورم
     function showFormMessage(formType, message, isSuccess = false) {
       const msgBox = document.getElementById(formType + 'Message');
       if (!msgBox) return;
@@ -538,7 +618,24 @@
       msgBox.style.display = 'block';
     }
 
-    // دالة جلب وعرض الأفلام من قاعدة البيانات
+    // دالة محاولة الانتقال لصفحة المشاهدة بعد خصم فرصة
+    function handleMovieClick(event, watchUrl) {
+      event.preventDefault();
+      let data = getChancesData();
+
+      if (data.locked) {
+        alert('لقد استنفذت جميع فرصك (5 فرص). يرجى الانتظار حتى ينتهي مؤقت الـ 3 دقائق لتجديد الفرص.');
+        return;
+      }
+
+      if (consumeChance()) {
+        window.location.href = watchUrl;
+      } else {
+        alert('عذراً، نفذت فرصك المتاحة. انتظر حتى يتم تجديدها.');
+      }
+    }
+
+    // جلب وعرض الأفلام من قاعدة البيانات
     async function loadMoviesFromDatabase() {
       const moviesGrid = document.querySelector('.movies-grid');
       if (!moviesGrid || typeof supabaseClient === 'undefined') return;
@@ -559,7 +656,7 @@
         moviesGrid.innerHTML = '';
         movies.forEach(movie => {
           moviesGrid.innerHTML += `
-            <a href="watch.html?id=${movie.id}" class="movie-card">
+            <div class="movie-card" onclick="handleMovieClick(event, 'watch.html?id=${movie.id}')">
               <div class="poster-box">
                 <span class="badge">★ ${movie.rating || 'N/A'}</span>
                 <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
@@ -571,7 +668,7 @@
                   <span>${movie.category || ''}</span>
                 </div>
               </div>
-            </a>
+            </div>
           `;
         });
       } catch (err) {
@@ -581,6 +678,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadMoviesFromDatabase();
+      updateChancesDisplay();
     });
   </script>
 </body>
