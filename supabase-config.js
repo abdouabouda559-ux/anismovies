@@ -1,10 +1,19 @@
 // تهيئة الاتصال بمشروع Supabase
-const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co/';
-const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2'; // ضع مفتاحك هنا
+const SUPABASE_URL = 'https://cnbxvtyvghvogtwwtpxl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2'; // استبدل هذا بالمفتاح الخاص بك (anon public)
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 1. دالة إنشاء حساب جديد مع التحقق من الأخطاء وإظهارها للمستخدم
+// دالة مساعدة لعرض الرسائل داخل الفورم بشكل أنيق
+function showFormMessage(formType, message, isSuccess = false) {
+  const msgBox = document.getElementById(formType + 'Message');
+  if (!msgBox) return;
+  msgBox.innerText = message;
+  msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
+  msgBox.style.display = 'block';
+}
+
+// 1. دالة إنشاء حساب جديد (Sign Up)
 async function signUpUser(email, password) {
   try {
     const { data, error } = await supabaseClient.auth.signUp({
@@ -14,16 +23,13 @@ async function signUpUser(email, password) {
 
     if (error) throw error;
 
-    alert('تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.');
-    closeAuthModal();
-    return data;
+    showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك الإلكتروني لتأكيده.', true);
   } catch (error) {
-    // إظهار سبب الخطأ الحقيقي (مثل كلمة المرور ضعيفة أو البريد مستخدم مسبقاً)
-    alert('فشل إنشاء الحساب: ' + error.message);
+    showFormMessage('signup', 'فشل إنشاء الحساب: ' + error.message, false);
   }
 }
 
-// 2. دالة تسجيل الدخول مع التحقق الفعلي من صحة المعلومات
+// 2. دالة تسجيل الدخول (Sign In)
 async function signInUser(email, password) {
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -33,26 +39,26 @@ async function signInUser(email, password) {
 
     if (error) throw error;
 
-    alert('تم تسجيل الدخول بنجاح! مرحباً بك.');
-    closeAuthModal();
-    checkUserSession(); // تحديث واجهة الهيدر فوراً
-    return data;
+    showFormMessage('login', 'تم تسجيل الدخول بنجاح! مرحباً بك.', true);
+    setTimeout(() => {
+      closeAuthModal();
+      checkUserSession();
+    }, 1200);
   } catch (error) {
-    // إظهار رسالة خطأ واضحة إذا كانت البيانات غير صحيحة
-    alert('خطأ في تسجيل الدخول: البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+    // عرض الرسالة أنيقة داخل الفورم بدلاً من alert المنبثق
+    showFormMessage('login', 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', false);
   }
 }
 
-// 3. دالة تسجيل الخروج
+// 3. دالة تسجيل الخروج (Sign Out)
 async function signOutUser() {
   const { error } = await supabaseClient.auth.signOut();
   if (!error) {
-    alert('تم تسجيل الخروج بنجاح.');
     checkUserSession();
   }
 }
 
-// 4. التحقق من الجلسة وعرض صورة وبروفايل المستخدم بشكل صحيح
+// 4. التحقق من الجلسة وتحديث الهيدر وصورة البروفايل
 async function checkUserSession() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   const authContainer = document.querySelector('.header-auth-btns');
@@ -62,7 +68,6 @@ async function checkUserSession() {
   if (session) {
     const userEmail = session.user.email;
     const userName = userEmail.split('@')[0];
-    // توليد حرف أول افتراضي لصورة البروفايل الدائرية إن لم توجد صورة مرفوعة
     const initial = userName.charAt(0).toUpperCase();
 
     authContainer.innerHTML = `
@@ -82,7 +87,7 @@ async function checkUserSession() {
   }
 }
 
-// تشغيل الفحص عند تحميل الصفحة وربط النماذج
+// ربط النماذج عند تحميل المستند
 document.addEventListener('DOMContentLoaded', () => {
   checkUserSession();
 
