@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أنيس موفيز - مشاهدة الفيلم</title>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Floating & Transparent Header */
+    header {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 15px;
+      z-index: 100;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 15px auto 0 auto;
+      border-radius: 14px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .back-home {
+      background-color: rgba(30, 41, 59, 0.6);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .back-home:hover {
+      background-color: #38bdf8;
+      color: #0f172a;
+    }
+
+    /* Watch Container */
+    .watch-container {
+      max-width: 1100px;
+      width: calc(100% - 40px);
+      margin: 2rem auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Video Player Box */
+    .player-box {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background-color: #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .player-box iframe, .player-box video {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Servers Navigation */
+    .servers-section {
+      background-color: #1e293b;
+      padding: 1.2rem 1.5rem;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .servers-title {
+      font-size: 1rem;
+      color: #94a3b8;
+    }
+
+    .servers-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .server-btn {
+      background-color: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .server-btn.active, .server-btn:hover {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+    }
+
+    /* Movie Details */
+    .movie-details {
+      background-color: #1e293b;
+      padding: 1.5rem;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .movie-title-large {
+      font-size: 1.6rem;
+      color: #fff;
+    }
+
+    .movie-meta-info {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    .movie-desc {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-top: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #1e293b;
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid #334155;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        width: calc(100% - 20px);
+      }
+      .watch-container {
+        width: calc(100% - 20px);
+      }
+      .servers-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-right">
+      <div class="logo">أنيس موفيز</div>
+    </div>
+    <a href="index.html" class="back-home">الرئيسية ←</a>
+  </header>
+
+  <!-- Watch Section -->
+  <div class="watch-container">
+    
+    <!-- Video Player -->
+    <div class="player-box">
+      <!-- يتم تغيير مصدر اليفديو حسب السيرفر المحدد -->
+      <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+    </div>
+
+    <!-- Servers Selection (Maximum 2 Servers) -->
+    <div class="servers-section">
+      <span class="servers-title">اختر سيرفر المشاهدة:</span>
+      <div class="servers-buttons">
+        <button class="server-btn active" onclick="changeServer('https://www.youtube.com/embed/dQw4w9WgXcQ', this)">سيرفر العرض الرئيسي (1)</button>
+        <button class="server-btn" onclick="changeServer('https://www.dailymotion.com/embed/video/x8om2p8', this)">سيرفر الاحتياطي (2)</button>
+      </div>
+    </div>
+
+    <!-- Movie Details -->
+    <div class="movie-details">
+      <h1 class="movie-title-large">رحلة الفضاء المجهولة</h1>
+      <div class="movie-meta-info">
+        <span>السنة: 2024</span>
+        <span>التصنيف: خيال علمي</span>
+        <span>التقييم: ★ 8.5</span>
+      </div>
+      <p class="movie-desc">
+        تدور أحداث الفيلم في المستقبل القريب حول فريق من العلماء والرواد في مهمة استكشافية محفوفة بالمخاطر لاكتشاف مجرة جديدة وحل لغز إشارات غامضة قادمة من عمق الفضاء السحيق.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
+  </footer>
+
+  <script>
+    // وظيفة للتبديل الفوري بين السيرفرين المتاحين
+    function changeServer(videoUrl, btnElement) {
+      // تغيير رابط المشغل
+      document.getElementById('videoPlayer').src = videoUrl;
+
+      // تحديث مظهر الأزرار النشطة
+      const buttons = document.querySelectorAll('.server-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
