@@ -494,8 +494,10 @@
       <form id="signupForm" class="auth-form" style="display: none;">
         <h3>انضم إلينا الآن</h3>
         <div id="signupMessage" class="form-message"></div>
-        <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+        <!-- حقل اسم العرض الجديد (Display Name) -->
+        <input type="text" id="signupDisplayName" placeholder="الاسم الظاهري (اسم العرض)" required>
+        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
+        <input type="password" id="signupPassword" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
         <button type="submit" class="submit-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -523,7 +525,6 @@
           let remainingMs = parseInt(lockoutTime) - now;
           return { chances: 0, locked: true, remainingMs };
         } else {
-          // انتهى وقت الانتظار، إعادة تعيين الفرص
           localStorage.removeItem('user_lockout_time');
           localStorage.setItem('user_chances', MAX_CHANCES);
           return { chances: MAX_CHANCES, locked: false, remainingMs: 0 };
@@ -549,8 +550,6 @@
         badge.innerText = `نفذت الفرص! تجديد خلال: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         badge.style.color = '#f87171';
         badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        
-        // تحديث العداد كل ثانية
         setTimeout(updateChancesDisplay, 1000);
       } else {
         badge.innerText = `الفرص المتاحة: ${data.chances} / ${MAX_CHANCES}`;
@@ -567,7 +566,6 @@
         data.chances -= 1;
         localStorage.setItem('user_chances', data.chances);
         if (data.chances === 0) {
-          // بدأت فترة الانتظار لمدة 3 دقائق
           localStorage.setItem('user_lockout_time', Date.now() + COOLDOWN_TIME);
         }
         updateChancesDisplay();
@@ -576,7 +574,6 @@
       return false;
     }
 
-    // اعتراض الـ Alert لمنع النوافذ المنجزة غير المعربة
     window.alert = function(msg) {
       const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
       showFormMessage(activeForm, msg, false);
@@ -616,6 +613,34 @@
       msgBox.innerText = message;
       msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
       msgBox.style.display = 'block';
+    }
+
+    // دالة إنشاء الحساب مع إرسال display_name كبيانات وصفية (options.data) لتخزينها في قاعدة البيانات
+    async function handleSignUp(e) {
+      e.preventDefault();
+      const displayName = document.getElementById('signupDisplayName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+
+      if (typeof supabaseClient === 'undefined') return;
+
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              display_name: displayName
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك الإلكتروني لتأكيده.', true);
+      } catch (err) {
+        showFormMessage('signup', 'فشل إنشاء الحساب: ' + err.message, false);
+      }
     }
 
     // دالة محاولة الانتقال لصفحة المشاهدة بعد خصم فرصة
@@ -679,6 +704,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadMoviesFromDatabase();
       updateChancesDisplay();
+
+      const signupForm = document.getElementById('signupForm');
+      if (signupForm) {
+        signupForm.addEventListener('submit', handleSignUp);
+      }
     });
   </script>
 </body>
