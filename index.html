@@ -116,6 +116,51 @@
       background-color: #0ea5e9;
     }
 
+    /* User Profile Badge in Header */
+    .user-profile-badge {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background-color: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+      border-radius: 30px;
+    }
+
+    .user-profile-badge img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #334155;
+    }
+
+    .user-profile-badge span {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #38bdf8;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-logout {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background-color: rgba(239, 68, 68, 0.3);
+    }
+
     /* Floating Categories Bar */
     .categories-container {
       position: sticky;
@@ -422,9 +467,18 @@
   <header>
     <div class="header-right">
       <div class="logo">أنيس موفيز</div>
-      <div class="header-auth-btns">
+      
+      <!-- أزرار تسجيل الدخول / إنشاء حساب (تظهر للزائر) -->
+      <div id="authButtonsContainer" class="header-auth-btns">
         <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
+      </div>
+
+      <!-- بروفايل المستخدم (يظهر عند تسجيل الدخول) -->
+      <div id="userProfileBadge" class="user-profile-badge">
+        <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
+        <span id="headerUsername">المستخدم</span>
+        <button class="btn-logout" onclick="handleSignOut()">خروج</button>
       </div>
     </div>
     
@@ -471,8 +525,8 @@
       <form id="loginForm" class="auth-form">
         <h3>مرحباً بك مجدداً</h3>
         <div id="loginMessage" class="form-message"></div>
-        <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور" required>
+        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
+        <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
         <button type="submit" class="submit-btn">دخول</button>
       </form>
 
@@ -480,8 +534,8 @@
       <form id="signupForm" class="auth-form" style="display: none;">
         <h3>انضم إلينا الآن</h3>
         <div id="signupMessage" class="form-message"></div>
-        <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
+        <input type="password" id="signupPassword" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
         <button type="submit" class="submit-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -538,6 +592,52 @@
       msgBox.style.display = 'block';
     }
 
+    // دالة فحص وتحديث الهيدر بحالة المستخدم وصورة البروفايل واسمه
+    async function checkUserSessionAndHeader() {
+      if (typeof supabaseClient === 'undefined') return;
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const authButtonsContainer = document.getElementById('authButtonsContainer');
+      const userProfileBadge = document.getElementById('userProfileBadge');
+      const headerUsername = document.getElementById('headerUsername');
+      const headerUserAvatar = document.getElementById('headerUserAvatar');
+
+      if (session && session.user) {
+        // إخفاء أزرار الدخول، وإظهار بروفايل المستخدم
+        authButtonsContainer.style.display = 'none';
+        userProfileBadge.style.display = 'flex';
+
+        const userId = session.user.id;
+        
+        // جلب بيانات الـ username وصورة البروفايل من جدول profiles
+        const { data: profile, error } = await supabaseClient
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .single();
+
+        if (profile) {
+          headerUsername.textContent = profile.username || session.user.email.split('@')[0];
+          if (profile.avatar_url) {
+            headerUserAvatar.src = profile.avatar_url;
+          }
+        } else {
+          headerUsername.textContent = session.user.email.split('@')[0];
+        }
+      } else {
+        // إظهار أزرار الدخول، وإخفاء بروفايل المستخدم
+        authButtonsContainer.style.display = 'flex';
+        userProfileBadge.style.display = 'none';
+      }
+    }
+
+    // دالة تسجيل الخروج
+    async function handleSignOut() {
+      if (typeof supabaseClient === 'undefined') return;
+      await supabaseClient.auth.signOut();
+      window.location.reload();
+    }
+
     // دالة جلب وعرض الأفلام من قاعدة البيانات
     async function loadMoviesFromDatabase() {
       const moviesGrid = document.querySelector('.movies-grid');
@@ -580,6 +680,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      checkUserSessionAndHeader();
       loadMoviesFromDatabase();
     });
   </script>
