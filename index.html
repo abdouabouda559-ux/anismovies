@@ -2,8 +2,6 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <!-- Supabase JS Library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>أنيس موفيز - الرئيسية</title>
   <style>
@@ -118,7 +116,7 @@
       background-color: #0ea5e9;
     }
 
-    /* Floating & Transparent Categories Bar */
+    /* Floating Categories Bar */
     .categories-container {
       position: sticky;
       top: 85px;
@@ -144,10 +142,6 @@
 
     .category-tags::-webkit-scrollbar {
       display: none;
-    }
-    .category-tags {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
     }
 
     .tag {
@@ -281,7 +275,7 @@
       color: #94a3b8;
     }
 
-    /* Auth Modal Styling */
+    /* Auth Modal */
     .auth-modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -302,7 +296,6 @@
       max-width: 400px;
       position: relative;
       color: #fff;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     .close-btn {
@@ -314,7 +307,6 @@
       color: #94a3b8;
       font-size: 1.6rem;
       cursor: pointer;
-      line-height: 1;
     }
 
     .auth-tabs {
@@ -333,7 +325,6 @@
       cursor: pointer;
       font-weight: bold;
       padding-bottom: 0.4rem;
-      transition: color 0.2s;
     }
 
     .tab-btn.active {
@@ -359,11 +350,6 @@
       border-radius: 8px;
       color: #fff;
       outline: none;
-      font-size: 0.9rem;
-    }
-
-    .auth-form input:focus {
-      border-color: #38bdf8;
     }
 
     .submit-btn {
@@ -374,16 +360,9 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95rem;
       margin-top: 0.5rem;
-      transition: background 0.2s;
     }
 
-    .submit-btn:hover {
-      background-color: #0ea5e9;
-    }
-
-    /* Footer */
     footer {
       background-color: #1e293b;
       text-align: center;
@@ -393,7 +372,6 @@
       color: #94a3b8;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -412,11 +390,7 @@
         width: calc(100% - 20px);
         top: 150px;
       }
-      .hero-banner {
-        width: calc(100% - 20px);
-        margin: 1rem auto;
-      }
-      .movies-container {
+      .hero-banner, .movies-container {
         width: calc(100% - 20px);
       }
     }
@@ -424,7 +398,7 @@
 </head>
 <body>
 
-  <!-- Floating Sticky Header -->
+  <!-- Header -->
   <header>
     <div class="header-right">
       <div class="logo">أنيس موفيز</div>
@@ -439,7 +413,7 @@
     </div>
   </header>
 
-  <!-- Floating Sticky Categories Bar -->
+  <!-- Categories Bar -->
   <div class="categories-container">
     <div class="category-tags">
       <span class="tag active">الكل</span>
@@ -447,10 +421,6 @@
       <span class="tag">دراما</span>
       <span class="tag">أنمي</span>
       <span class="tag">خيال علمي</span>
-      <span class="tag">كوميديا</span>
-      <span class="tag">رعب</span>
-      <span class="tag">غموض</span>
-      <span class="tag">وثائقي</span>
     </div>
   </div>
 
@@ -464,7 +434,6 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-
       <!-- Movie Card 1 -->
       <a href="watch.html?id=1" class="movie-card">
         <div class="poster-box">
@@ -479,127 +448,55 @@
           </div>
         </div>
       </a>
-
-      <!-- Movie Card 2 -->
-      <a href="watch.html?id=2" class="movie-card">
-        <div class="poster-box">
-          <span class="badge">★ 7.9</span>
-          <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80" alt="Poster">
-        </div>
-        <div class="movie-info">
-          <div class="movie-title">تحدي المغامرة</div>
-          <div class="movie-meta">
-            <span>2023</span>
-            <span>أكشن</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Movie Card 3 -->
-      <a href="watch.html?id=3" class="movie-card">
-        <div class="poster-box">
-          <span class="badge">★ 9.0</span>
-          <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80" alt="Poster">
-        </div>
-        <div class="movie-info">
-          <div class="movie-title">سر المدينة القديمة</div>
-          <div class="movie-meta">
-            <span>2024</span>
-            <span>غموض</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Movie Card 4 -->
-      <a href="watch.html?id=4" class="movie-card">
-        <div class="poster-box">
-          <span class="badge">★ 8.1</span>
-          <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=400&q=80" alt="Poster">
-        </div>
-        <div class="movie-info">
-          <div class="movie-title">عالم الأنمي والأساطير</div>
-          <div class="movie-meta">
-            <span>2023</span>
-            <span>أنمي</span>
-          </div>
-        </div>
-      </a>
-
     </div>
   </div>
 
-  <!-- Auth Modal Overlay -->
+  <!-- Auth Modal -->
   <div class="auth-modal-overlay" id="authModal">
     <div class="auth-card">
       <button class="close-btn" onclick="closeAuthModal()">&times;</button>
-      
       <div class="auth-tabs">
         <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
         <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
       </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" class="auth-form" onsubmit="event.preventDefault();">
+      <form id="loginForm" class="auth-form">
         <h3>مرحباً بك مجدداً</h3>
         <input type="email" placeholder="البريد الإلكتروني" required>
         <input type="password" placeholder="كلمة المرور" required>
         <button type="submit" class="submit-btn">دخول</button>
       </form>
-
-      <!-- Signup Form -->
-      <form id="signupForm" class="auth-form" style="display: none;" onsubmit="event.preventDefault();">
+      <form id="signupForm" class="auth-form" style="display: none;">
         <h3>انضم إلينا الآن</h3>
         <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+        <input type="password" placeholder="كلمة المرور" required>
         <button type="submit" class="submit-btn">إنشاء الحساب</button>
       </form>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
+  <!-- Supabase CDN & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script>
-    // Modal Functions
     function openAuthModal(mode) {
-      const modal = document.getElementById('authModal');
-      modal.style.display = 'flex';
+      document.getElementById('authModal').style.display = 'flex';
       switchTab(mode);
     }
-
     function closeAuthModal() {
-      const modal = document.getElementById('authModal');
-      modal.style.display = 'none';
+      document.getElementById('authModal').style.display = 'none';
     }
-
-    // Switch between Login & Signup Tabs
     function switchTab(tab) {
-      const loginForm = document.getElementById('loginForm');
-      const signupForm = document.getElementById('signupForm');
-      const loginTab = document.getElementById('loginTab');
-      const signupTab = document.getElementById('signupTab');
-
-      if (tab === 'login') {
-        loginForm.style.display = 'flex';
-        signupForm.style.display = 'none';
-        loginTab.classList.add('active');
-        signupTab.classList.remove('active');
-      } else {
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'flex';
-        signupTab.classList.add('active');
-        loginTab.classList.remove('active');
-      }
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
+      document.getElementById('signupForm').style.display = tab === 'signup' ? 'flex' : 'none';
+      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+      document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
     }
-
-    // Close modal when clicking outside the auth-card
-    window.onclick = function(event) {
-      const modal = document.getElementById('authModal');
-      if (event.target === modal) {
-        closeAuthModal();
-      }
+    window.onclick = (e) => {
+      if (e.target === document.getElementById('authModal')) closeAuthModal();
     }
   </script>
 </body>
