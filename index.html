@@ -434,20 +434,7 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-      <!-- Movie Card 1 -->
-      <a href="watch.html?id=1" class="movie-card">
-        <div class="poster-box">
-          <span class="badge">★ 8.5</span>
-          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Poster">
-        </div>
-        <div class="movie-info">
-          <div class="movie-title">رحلة الفضاء المجهولة</div>
-          <div class="movie-meta">
-            <span>2024</span>
-            <span>خيال علمي</span>
-          </div>
-        </div>
-      </a>
+      <!-- سيتم جلب وعرض الأفلام ديناميكياً من قاعدة البيانات هنا تلقائياً -->
     </div>
   </div>
 
@@ -498,6 +485,50 @@
     window.onclick = (e) => {
       if (e.target === document.getElementById('authModal')) closeAuthModal();
     }
+
+    // دالة جلب وعرض الأفلام الديناميكية من Supabase
+    async function loadMoviesFromDatabase() {
+      const moviesGrid = document.querySelector('.movies-grid');
+      if (!moviesGrid) return;
+
+      const { data: movies, error } = await supabaseClient
+        .from('movies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('خطأ في جلب الأفلام:', error.message);
+        return;
+      }
+
+      if (!movies || movies.length === 0) {
+        moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
+        return;
+      }
+
+      moviesGrid.innerHTML = '';
+      movies.forEach(movie => {
+        moviesGrid.innerHTML += `
+          <a href="watch.html?id=${movie.id}" class="movie-card">
+            <div class="poster-box">
+              <span class="badge">★ ${movie.rating || 'N/A'}</span>
+              <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
+            </div>
+            <div class="movie-info">
+              <div class="movie-title">${movie.title}</div>
+              <div class="movie-meta">
+                <span>${movie.release_year || ''}</span>
+                <span>${movie.category || ''}</span>
+              </div>
+            </div>
+          </a>
+        `;
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMoviesFromDatabase();
+    });
   </script>
 </body>
 </html>
