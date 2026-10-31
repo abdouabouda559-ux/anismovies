@@ -1,31 +1,32 @@
-// 1. تهيئة الاتصال بـ Supabase
-const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2';
+// تهيئة الاتصال بمشروع Supabase
+const SUPABASE_URL = 'https://cnbxvtyvghvogtwwtpxl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2'; // ضع مفتاحك هنا
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2. دالة إنشاء حساب جديد (Sign Up)
+// 1. دالة إنشاء حساب جديد مع التحقق من الأخطاء وإظهارها للمستخدم
 async function signUpUser(email, password) {
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email: email,
       password: password
     });
 
     if (error) throw error;
 
-    alert('تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك الإلكتروني لتأكيده.');
+    alert('تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.');
     closeAuthModal();
     return data;
   } catch (error) {
-    alert('حدث خطأ أثناء إنشاء الحساب: ' + error.message);
+    // إظهار سبب الخطأ الحقيقي (مثل كلمة المرور ضعيفة أو البريد مستخدم مسبقاً)
+    alert('فشل إنشاء الحساب: ' + error.message);
   }
 }
 
-// 3. دالة تسجيل الدخول (Sign In)
+// 2. دالة تسجيل الدخول مع التحقق الفعلي من صحة المعلومات
 async function signInUser(email, password) {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password
     });
@@ -34,37 +35,46 @@ async function signInUser(email, password) {
 
     alert('تم تسجيل الدخول بنجاح! مرحباً بك.');
     closeAuthModal();
-    checkUserSession(); // تحديث الواجهة فور الدخول
+    checkUserSession(); // تحديث واجهة الهيدر فوراً
     return data;
   } catch (error) {
-    alert('خطأ في تسجيل الدخول: ' + error.message);
+    // إظهار رسالة خطأ واضحة إذا كانت البيانات غير صحيحة
+    alert('خطأ في تسجيل الدخول: البريد الإلكتروني أو كلمة المرور غير صحيحة.');
   }
 }
 
-// 4. دالة تسجيل الخروج (Sign Out)
+// 3. دالة تسجيل الخروج
 async function signOutUser() {
-  const { error } = await supabase.auth.signOut();
+  const { error } = await supabaseClient.auth.signOut();
   if (!error) {
-    alert('تم تسجيل الخروج.');
+    alert('تم تسجيل الخروج بنجاح.');
     checkUserSession();
   }
 }
 
-// 5. التحقق من حالة الجلسة وتحديث زر الهيدر
+// 4. التحقق من الجلسة وعرض صورة وبروفايل المستخدم بشكل صحيح
 async function checkUserSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   const authContainer = document.querySelector('.header-auth-btns');
 
   if (!authContainer) return;
 
   if (session) {
-    // إذا كان المستخدم مسجلاً لدخوله
+    const userEmail = session.user.email;
+    const userName = userEmail.split('@')[0];
+    // توليد حرف أول افتراضي لصورة البروفايل الدائرية إن لم توجد صورة مرفوعة
+    const initial = userName.charAt(0).toUpperCase();
+
     authContainer.innerHTML = `
-      <span style="color: #38bdf8; font-size: 0.85rem; font-weight: bold;">مرحباً، ${session.user.email.split('@')[0]}</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 32px; height: 32px; background-color: #38bdf8; color: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
+          ${initial}
+        </div>
+        <span style="color: #38bdf8; font-size: 0.85rem; font-weight: bold;">${userName}</span>
+      </div>
       <button class="btn-login" onclick="signOutUser()">خروج</button>
     `;
   } else {
-    // إذا لم يكن مسجلاً
     authContainer.innerHTML = `
       <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
       <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
@@ -72,7 +82,7 @@ async function checkUserSession() {
   }
 }
 
-// 6. ربط نماذج HTML بالدوال عند تحميل الصفحة
+// تشغيل الفحص عند تحميل الصفحة وربط النماذج
 document.addEventListener('DOMContentLoaded', () => {
   checkUserSession();
 
