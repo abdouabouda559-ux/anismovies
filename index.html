@@ -363,6 +363,25 @@
       margin-top: 0.5rem;
     }
 
+    /* صندوق الرسائل الأنيق داخل الفورم */
+    .form-message {
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+      text-align: center;
+    }
+    .form-message.error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+    .form-message.success {
+      background-color: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
     footer {
       background-color: #1e293b;
       text-align: center;
@@ -446,16 +465,22 @@
         <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
         <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
       </div>
+
+      <!-- Login Form -->
       <form id="loginForm" class="auth-form">
         <h3>مرحباً بك مجدداً</h3>
+        <div id="loginMessage" class="form-message"></div>
         <input type="email" placeholder="البريد الإلكتروني" required>
         <input type="password" placeholder="كلمة المرور" required>
         <button type="submit" class="submit-btn">دخول</button>
       </form>
+
+      <!-- Signup Form -->
       <form id="signupForm" class="auth-form" style="display: none;">
         <h3>انضم إلينا الآن</h3>
+        <div id="signupMessage" class="form-message"></div>
         <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور" required>
+        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
         <button type="submit" class="submit-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -472,6 +497,9 @@
     function openAuthModal(mode) {
       document.getElementById('authModal').style.display = 'flex';
       switchTab(mode);
+      // إخفاء الرسائل عند فتح النافذة
+      document.getElementById('loginMessage').style.display = 'none';
+      document.getElementById('signupMessage').style.display = 'none';
     }
     function closeAuthModal() {
       document.getElementById('authModal').style.display = 'none';
@@ -484,6 +512,15 @@
     }
     window.onclick = (e) => {
       if (e.target === document.getElementById('authModal')) closeAuthModal();
+    }
+
+    // دالة مساعدة لعرض الرسائل داخل الفورم بشكل أنيق
+    function showFormMessage(formType, message, isSuccess = false) {
+      const msgBox = document.getElementById(formType + 'Message');
+      if (!msgBox) return;
+      msgBox.innerText = message;
+      msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
+      msgBox.style.display = 'block';
     }
 
     // دالة جلب وعرض الأفلام الديناميكية من Supabase
