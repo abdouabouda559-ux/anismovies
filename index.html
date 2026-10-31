@@ -3,720 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أنيس موفيز - الرئيسية</title>
+  <title>أنيس موفيز - AnisMovies</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Reset & Base Styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
     body {
+      font-family: Arial, sans-serif;
       background-color: #0f172a;
       color: #f8fafc;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      margin: 0;
+      padding: 0;
     }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    /* Floating & Transparent Header */
     header {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 0.9rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 15px;
-      z-index: 100;
-      width: calc(100% - 30px);
-      max-width: 1200px;
-      margin: 15px auto 0 auto;
-      border-radius: 14px;
-      border: 1px solid rgba(51, 65, 85, 0.5);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .logo {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #38bdf8;
-    }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      background-color: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(51, 65, 85, 0.7);
-      border-radius: 20px;
-      padding: 0.4rem 1rem;
-      width: 100%;
-      max-width: 260px;
-    }
-
-    .search-box input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #fff;
-      width: 100%;
-      font-size: 0.9rem;
-    }
-
-    /* Auth Buttons Header */
-    .header-auth-btns {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    .btn-login {
-      background: transparent;
-      color: #38bdf8;
-      border: 1px solid #38bdf8;
-      padding: 0.4rem 1rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-login:hover {
-      background-color: rgba(56, 189, 248, 0.1);
-    }
-
-    .btn-signup {
-      background-color: #38bdf8;
-      color: #0f172a;
-      border: none;
-      padding: 0.45rem 1.1rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-signup:hover {
-      background-color: #0ea5e9;
-    }
-
-    /* Floating Categories Bar */
-    .categories-container {
-      position: sticky;
-      top: 85px;
-      z-index: 90;
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 0.7rem 1.5rem;
-      width: calc(100% - 30px);
-      max-width: 1200px;
-      margin: 10px auto 0 auto;
-      border-radius: 14px;
-      border: 1px solid rgba(51, 65, 85, 0.5);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .category-tags {
-      display: flex;
-      gap: 0.75rem;
-      overflow-x: auto;
-      padding-bottom: 0.2rem;
-    }
-
-    .category-tags::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tag {
-      background: rgba(30, 41, 59, 0.6);
-      color: #cbd5e1;
-      padding: 0.4rem 1.1rem;
-      border-radius: 20px;
-      border: 1px solid rgba(51, 65, 85, 0.6);
-      cursor: pointer;
-      font-size: 0.85rem;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-    }
-
-    .tag:hover, .tag.active {
-      background-color: #38bdf8;
-      color: #0f172a;
-      border-color: #38bdf8;
-      font-weight: bold;
-    }
-
-    /* Hero Banner */
-    .hero-banner {
-      background: linear-gradient(rgba(15, 23, 42, 0.5), #0f172a), 
-                  url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover;
-      height: 250px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 1.5rem;
-      margin: 1.5rem auto 2rem auto;
-      width: calc(100% - 30px);
-      max-width: 1200px;
-      border-radius: 16px;
-    }
-
-    .hero-banner h1 {
-      font-size: 1.8rem;
-      color: #ffffff;
-      margin-bottom: 0.4rem;
-    }
-
-    .hero-banner p {
-      color: #cbd5e1;
-      max-width: 600px;
-      font-size: 0.9rem;
-    }
-
-    /* Movies Grid */
-    .movies-container {
-      width: calc(100% - 30px);
-      max-width: 1200px;
-      margin: 0 auto;
-      padding-bottom: 3rem;
-      flex: 1;
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: #38bdf8;
-      border-right: 4px solid #38bdf8;
-      padding-right: 8px;
-    }
-
-    .movies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1.2rem;
-    }
-
-    .movie-card {
+      padding: 15px 30px;
       background-color: #1e293b;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #334155;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-    }
-
-    .movie-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .poster-box {
-      width: 100%;
-      height: 220px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .poster-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(15, 23, 42, 0.8);
-      color: #fbbf24;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: bold;
-    }
-
-    .movie-info {
-      padding: 0.7rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .movie-title {
-      font-size: 0.9rem;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .movie-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: #94a3b8;
-    }
-
-    /* Auth Modal */
-    .auth-modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(15, 23, 42, 0.85);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
-      padding: 15px;
-    }
-
-    .auth-card {
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      padding: 1.8rem;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      color: #fff;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 1.5rem;
-      margin-bottom: 1.2rem;
       border-bottom: 1px solid #334155;
-      padding-bottom: 0.5rem;
     }
-
-    .tab-btn {
-      background: none;
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #334155;
+      padding: 5px 12px 5px 5px;
+      border-radius: 30px;
+    }
+    #avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #475569;
+    }
+    #username-display {
+      font-size: 14px;
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    #auth-btn {
+      background-color: #ef4444;
+      color: white;
       border: none;
-      color: #94a3b8;
-      font-size: 1rem;
+      padding: 8px 16px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
-      padding-bottom: 0.4rem;
     }
-
-    .tab-btn.active {
-      color: #38bdf8;
-      border-bottom: 2px solid #38bdf8;
-    }
-
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.9rem;
-    }
-
-    .auth-form h3 {
-      margin-bottom: 0.1rem;
-      font-size: 1.1rem;
-    }
-
-    /* عرض الفرص المتاحة داخل الفورم بشكل أنيق */
-    .modal-chances-badge {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: #38bdf8;
-      padding: 0.5rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .auth-form input {
-      background-color: #0f172a;
-      border: 1px solid #334155;
-      padding: 0.75rem;
-      border-radius: 8px;
-      color: #fff;
-      outline: none;
-      font-size: 0.9rem;
-      width: 100%;
-    }
-
-    .submit-btn {
+    #auth-btn.login {
       background-color: #38bdf8;
       color: #0f172a;
-      border: none;
-      padding: 0.75rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 0.3rem;
-      font-size: 0.95rem;
     }
-
-    /* صندوق الرسائل الأنيق بداخل الفورم */
-    .form-message {
-      padding: 0.6rem 0.8rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      display: none;
+    .container {
+      padding: 40px;
       text-align: center;
-      line-height: 1.4;
-    }
-    .form-message.error {
-      background-color: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #f87171;
-    }
-    .form-message.success {
-      background-color: rgba(34, 197, 94, 0.15);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      color: #4ade80;
-    }
-
-    footer {
-      background-color: #1e293b;
-      text-align: center;
-      padding: 1.2rem;
-      border-top: 1px solid #334155;
-      font-size: 0.8rem;
-      color: #94a3b8;
-      margin-top: auto;
-    }
-
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .header-right {
-        justify-content: space-between;
-        width: 100%;
-      }
-      .search-box {
-        max-width: 100%;
-      }
-      .categories-container {
-        top: 145px;
-      }
-      .movies-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
-    <div class="header-right">
-      <div class="logo">أنيس موفيز</div>
-      <div class="header-auth-btns">
-        <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
-        <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
+    <div class="logo">أنيس موفيز 🎬</div>
+    <div class="user-info">
+      <div class="user-profile" id="profile-container">
+        <img id="avatar-img" src="https://via.placeholder.com/150" alt="صورة البروفايل">
+        <span id="username-display">جاري التحميل...</span>
       </div>
-    </div>
-    
-    <div class="search-box">
-      <input type="text" placeholder="ابحث عن فيلم أو مسلسل...">
+      <button id="auth-btn" onclick="handleAuthAction()">تسجيل الخروج</button>
     </div>
   </header>
 
-  <!-- Categories Bar -->
-  <div class="categories-container">
-    <div class="category-tags">
-      <span class="tag active">الكل</span>
-      <span class="tag">أكشن</span>
-      <span class="tag">دراما</span>
-      <span class="tag">أنمي</span>
-      <span class="tag">خيال علمي</span>
-    </div>
+  <div class="container">
+    <h1>مرحباً بك في منصة الأفلام والمسلسلات</h1>
+    <p>استمتع بأحدث الأعمال والمحتوى المميز.</p>
   </div>
 
-  <!-- Hero Banner -->
-  <div class="hero-banner">
-    <h1>عالم الأكشن والإثارة</h1>
-    <p>شاهد أحدث الأفلام والمسلسلات بجودة عالية وسيرفرات مشاهدة مباشرة سريعة.</p>
-  </div>
-
-  <!-- Movies List -->
-  <div class="movies-container">
-    <h2 class="section-title">أحدث الإضافات</h2>
-    <div class="movies-grid">
-      <!-- جلب الأفلام من Supabase مع نظام التحقق من الفرص -->
-    </div>
-  </div>
-
-  <!-- Auth Modal -->
-  <div class="auth-modal-overlay" id="authModal">
-    <div class="auth-card">
-      <button class="close-btn" onclick="closeAuthModal()">&times;</button>
-      <div class="auth-tabs">
-        <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
-        <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
-      </div>
-
-      <!-- مؤشر الفرص المتاحة داخل النافذة (الفورم) -->
-      <div id="modalChancesDisplay" class="modal-chances-badge">الفرص المتاحة: 5 / 5</div>
-
-      <!-- Login Form -->
-      <form id="loginForm" class="auth-form">
-        <h3>مرحباً بك مجدداً</h3>
-        <div id="loginMessage" class="form-message"></div>
-        <input type="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" placeholder="كلمة المرور" required>
-        <button type="submit" class="submit-btn">دخول</button>
-      </form>
-
-      <!-- Signup Form -->
-      <form id="signupForm" class="auth-form" style="display: none;">
-        <h3>انضم إلينا الآن</h3>
-        <div id="signupMessage" class="form-message"></div>
-        <input type="text" id="signupDisplayName" placeholder="الاسم الظاهري (اسم العرض)" required>
-        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
-        <input type="password" id="signupPassword" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
-        <button type="submit" class="submit-btn">إنشاء الحساب</button>
-      </form>
-    </div>
-  </div>
-
-  <footer>
-    <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
-  </footer>
-
-  <!-- Supabase CDN & Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
   <script>
-    // نظام إدارة الفرص (5 فرص وتجديد خلال 3 دقائق عند النفاذ)
-    const MAX_CHANCES = 5;
-    const COOLDOWN_TIME = 3 * 60 * 1000; // 3 دقائق بالمللي ثانية
+    // إعدادات اتصال Supabase الخاصة بك
+    const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // ضع مفتاح الـ Anon الخاص بك هنا
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function getChancesData() {
-      let chances = localStorage.getItem('user_chances');
-      let lockoutTime = localStorage.getItem('user_lockout_time');
-      const now = Date.now();
+    async function checkUserSession() {
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      const usernameSpan = document.getElementById('username-display');
+      const avatarImg = document.getElementById('avatar-img');
+      const profileContainer = document.getElementById('profile-container');
+      const authBtn = document.getElementById('auth-btn');
 
-      if (lockoutTime) {
-        if (now < parseInt(lockoutTime)) {
-          let remainingMs = parseInt(lockoutTime) - now;
-          return { chances: 0, locked: true, remainingMs };
-        } else {
-          localStorage.removeItem('user_lockout_time');
-          localStorage.setItem('user_chances', MAX_CHANCES);
-          return { chances: MAX_CHANCES, locked: false, remainingMs: 0 };
-        }
-      }
+      if (session && session.user) {
+        const userId = session.user.id;
+        profileContainer.style.display = 'flex';
 
-      if (chances === null) {
-        chances = MAX_CHANCES;
-        localStorage.setItem('user_chances', chances);
-      }
+        // جلب اسم المستخدم وصورة البروفايل من جدول profiles
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .single();
 
-      return { chances: parseInt(chances), locked: false, remainingMs: 0 };
-    }
-
-    function updateChancesDisplay() {
-      const badge = document.getElementById('modalChancesDisplay');
-      if (!badge) return;
-
-      const data = getChancesData();
-      if (data.locked) {
-        let minutes = Math.floor(data.remainingMs / 60000);
-        let seconds = Math.floor((data.remainingMs % 60000) / 1000);
-        badge.innerText = `نفذت الفرص! تجديد خلال: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        badge.style.color = '#f87171';
-        badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        setTimeout(updateChancesDisplay, 1000);
-      } else {
-        badge.innerText = `الفرص المتاحة: ${data.chances} / ${MAX_CHANCES}`;
-        badge.style.color = '#38bdf8';
-        badge.style.borderColor = 'rgba(56, 189, 248, 0.4)';
-      }
-    }
-
-    function consumeChance() {
-      let data = getChancesData();
-      if (data.locked) return false;
-
-      if (data.chances > 0) {
-        data.chances -= 1;
-        localStorage.setItem('user_chances', data.chances);
-        if (data.chances === 0) {
-          localStorage.setItem('user_lockout_time', Date.now() + COOLDOWN_TIME);
-        }
-        updateChancesDisplay();
-        return true;
-      }
-      return false;
-    }
-
-    window.alert = function(msg) {
-      const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
-      showFormMessage(activeForm, msg, false);
-    };
-
-    function openAuthModal(mode) {
-      document.getElementById('authModal').style.display = 'flex';
-      switchTab(mode);
-      hideFormMessages();
-      updateChancesDisplay();
-    }
-
-    function closeAuthModal() {
-      document.getElementById('authModal').style.display = 'none';
-      hideFormMessages();
-    }
-
-    function hideFormMessages() {
-      document.getElementById('loginMessage').style.display = 'none';
-      document.getElementById('signupMessage').style.display = 'none';
-    }
-
-    function switchTab(tab) {
-      document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
-      document.getElementById('signupForm').style.display = tab === 'signup' ? 'flex' : 'none';
-      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-      document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
-      hideFormMessages();
-    }
-
-    window.onclick = (e) => {
-      if (e.target === document.getElementById('authModal')) closeAuthModal();
-    }
-
-    function showFormMessage(formType, message, isSuccess = false) {
-      const msgBox = document.getElementById(formType + 'Message');
-      if (!msgBox) return;
-      msgBox.innerText = message;
-      msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
-      msgBox.style.display = 'block';
-    }
-
-    async function handleSignUp(e) {
-      e.preventDefault();
-      const displayName = document.getElementById('signupDisplayName').value;
-      const email = document.getElementById('signupEmail').value;
-      const password = document.getElementById('signupPassword').value;
-
-      if (typeof supabaseClient === 'undefined') return;
-
-      try {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              display_name: displayName
-            }
+        if (profile) {
+          // عرض اسم المستخدم
+          usernameSpan.textContent = profile.username || session.user.email.split('@')[0];
+          
+          // عرض صورة البروفايل إذا كانت موجودة، أو وضع صورة افتراضية
+          if (profile.avatar_url) {
+            avatarImg.src = profile.avatar_url;
+          } else {
+            avatarImg.src = 'https://www.w3schools.com/howto/img_avatar.png'; // صورة افتراضية جاهزة
           }
-        });
-
-        if (error) throw error;
-
-        showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك الإلكتروني لتأكيده.', true);
-      } catch (err) {
-        showFormMessage('signup', 'فشل إنشاء الحساب: ' + err.message, false);
-      }
-    }
-
-    function handleMovieClick(event, watchUrl) {
-      event.preventDefault();
-      let data = getChancesData();
-
-      if (data.locked) {
-        alert('لقد استنفذت جميع فرصك (5 فرص). يرجى الانتظار حتى ينتهي مؤقت الـ 3 دقائق لتجديد الفرص.');
-        openAuthModal('login');
-        return;
-      }
-
-      if (consumeChance()) {
-        window.location.href = watchUrl;
-      } else {
-        alert('عذراً، نفذت فرصك المتاحة. انتظر حتى يتم تجديدها.');
-        openAuthModal('login');
-      }
-    }
-
-    async function loadMoviesFromDatabase() {
-      const moviesGrid = document.querySelector('.movies-grid');
-      if (!moviesGrid || typeof supabaseClient === 'undefined') return;
-
-      try {
-        const { data: movies, error } = await supabaseClient
-          .from('movies')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        if (!movies || movies.length === 0) {
-          moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
-          return;
+        } else {
+          usernameSpan.textContent = session.user.email.split('@')[0];
+          avatarImg.src = 'https://www.w3schools.com/howto/img_avatar.png';
         }
 
-        moviesGrid.innerHTML = '';
-        movies.forEach(movie => {
-          moviesGrid.innerHTML += `
-            <div class="movie-card" onclick="handleMovieClick(event, 'watch.html?id=${movie.id}')">
-              <div class="poster-box">
-                <span class="badge">★ ${movie.rating || 'N/A'}</span>
-                <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
-              </div>
-              <div class="movie-info">
-                <div class="movie-title">${movie.title}</div>
-                <div class="movie-meta">
-                  <span>${movie.release_year || ''}</span>
-                  <span>${movie.category || ''}</span>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-      } catch (err) {
-        console.error('خطأ أثناء جلب البيانات:', err.message);
+        authBtn.textContent = 'تسجيل الخروج';
+        authBtn.className = '';
+      } else {
+        profileContainer.style.display = 'none'; // إخفاء البروفايل في حال لم يكن مسجلاً
+        authBtn.textContent = 'تسجيل الدخول';
+        authBtn.className = 'login';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadMoviesFromDatabase();
-      updateChancesDisplay();
-
-      const signupForm = document.getElementById('signupForm');
-      if (signupForm) {
-        signupForm.addEventListener('submit', handleSignUp);
+    async function handleAuthAction() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        // تسجيل الخروج
+        await supabaseClient.auth.signOut();
+        window.location.reload();
+      } else {
+        // توجيه لصفحة تسجيل الدخول أو فتح المودل الخاص بك
+        alert('يرجى فتح نافذة تسجيل الدخول');
       }
-    });
+    }
+
+    // تنفيذ التحقق عند تحميل الصفحة
+    window.onload = checkUserSession;
   </script>
+
 </body>
 </html>
