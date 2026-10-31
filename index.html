@@ -363,13 +363,14 @@
       margin-top: 0.5rem;
     }
 
-    /* صندوق الرسائل الأنيق داخل الفورم */
+    /* صندوق الرسائل الأنيق بداخل الفورم */
     .form-message {
-      padding: 0.7rem 1rem;
+      padding: 0.75rem 1rem;
       border-radius: 8px;
       font-size: 0.85rem;
       display: none;
       text-align: center;
+      line-height: 1.4;
     }
     .form-message.error {
       background-color: rgba(239, 68, 68, 0.15);
@@ -453,7 +454,7 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-      <!-- سيتم جلب وعرض الأفلام ديناميكياً من قاعدة البيانات هنا تلقائياً -->
+      <!-- جلب الأفلام من Supabase -->
     </div>
   </div>
 
@@ -494,27 +495,41 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
+    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم لمنع أي ظهور للنافذة المنبثقة
+    window.alert = function(msg) {
+      const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
+      showFormMessage(activeForm, msg, false);
+    };
+
     function openAuthModal(mode) {
       document.getElementById('authModal').style.display = 'flex';
       switchTab(mode);
-      // إخفاء الرسائل عند فتح النافذة
+      hideFormMessages();
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+      hideFormMessages();
+    }
+
+    function hideFormMessages() {
       document.getElementById('loginMessage').style.display = 'none';
       document.getElementById('signupMessage').style.display = 'none';
     }
-    function closeAuthModal() {
-      document.getElementById('authModal').style.display = 'none';
-    }
+
     function switchTab(tab) {
       document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
       document.getElementById('signupForm').style.display = tab === 'signup' ? 'flex' : 'none';
       document.getElementById('loginTab').classList.toggle('active', tab === 'login');
       document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+      hideFormMessages();
     }
+
     window.onclick = (e) => {
       if (e.target === document.getElementById('authModal')) closeAuthModal();
     }
 
-    // دالة مساعدة لعرض الرسائل داخل الفورم بشكل أنيق
+    // دالة عرض الرسائل المباشرة داخل الفورم
     function showFormMessage(formType, message, isSuccess = false) {
       const msgBox = document.getElementById(formType + 'Message');
       if (!msgBox) return;
@@ -523,44 +538,45 @@
       msgBox.style.display = 'block';
     }
 
-    // دالة جلب وعرض الأفلام الديناميكية من Supabase
+    // دالة جلب وعرض الأفلام من قاعدة البيانات
     async function loadMoviesFromDatabase() {
       const moviesGrid = document.querySelector('.movies-grid');
-      if (!moviesGrid) return;
+      if (!moviesGrid || typeof supabaseClient === 'undefined') return;
 
-      const { data: movies, error } = await supabaseClient
-        .from('movies')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data: movies, error } = await supabaseClient
+          .from('movies')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('خطأ في جلب الأفلام:', error.message);
-        return;
-      }
+        if (error) throw error;
 
-      if (!movies || movies.length === 0) {
-        moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
-        return;
-      }
+        if (!movies || movies.length === 0) {
+          moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
+          return;
+        }
 
-      moviesGrid.innerHTML = '';
-      movies.forEach(movie => {
-        moviesGrid.innerHTML += `
-          <a href="watch.html?id=${movie.id}" class="movie-card">
-            <div class="poster-box">
-              <span class="badge">★ ${movie.rating || 'N/A'}</span>
-              <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
-            </div>
-            <div class="movie-info">
-              <div class="movie-title">${movie.title}</div>
-              <div class="movie-meta">
-                <span>${movie.release_year || ''}</span>
-                <span>${movie.category || ''}</span>
+        moviesGrid.innerHTML = '';
+        movies.forEach(movie => {
+          moviesGrid.innerHTML += `
+            <a href="watch.html?id=${movie.id}" class="movie-card">
+              <div class="poster-box">
+                <span class="badge">★ ${movie.rating || 'N/A'}</span>
+                <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
               </div>
-            </div>
-          </a>
-        `;
-      });
+              <div class="movie-info">
+                <div class="movie-title">${movie.title}</div>
+                <div class="movie-meta">
+                  <span>${movie.release_year || ''}</span>
+                  <span>${movie.category || ''}</span>
+                </div>
+              </div>
+            </a>
+          `;
+        });
+      } catch (err) {
+        console.error('خطأ أثناء جلب البيانات:', err.message);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
