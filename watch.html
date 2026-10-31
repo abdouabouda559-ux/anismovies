@@ -12,6 +12,7 @@
     header {
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 0.9rem 1.5rem;
       display: flex;
       justify-content: space-between;
@@ -24,70 +25,150 @@
       margin: 15px auto 0 auto;
       border-radius: 14px;
       border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
 
     .logo { font-size: 1.5rem; font-weight: bold; color: #38bdf8; }
-    .back-home { background-color: rgba(30, 41, 59, 0.6); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+    .back-home { background-color: rgba(30, 41, 59, 0.6); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s ease; }
+    .back-home:hover { background-color: #38bdf8; color: #0f172a; }
 
     .watch-container { max-width: 1100px; width: calc(100% - 40px); margin: 2rem auto; flex: 1; display: flex; flex-direction: column; gap: 1.5rem; }
-    .player-box { width: 100%; aspect-ratio: 16/9; background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; }
-    .player-box iframe { width: 100%; height: 100%; border: none; }
+    
+    .player-box { width: 100%; aspect-ratio: 16/9; background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+    .player-box iframe, .player-box video { width: 100%; height: 100%; border: none; }
 
     .servers-section { background-color: #1e293b; padding: 1.2rem 1.5rem; border-radius: 14px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 0.8rem; }
     .servers-title { font-size: 1rem; color: #94a3b8; }
     .servers-buttons { display: flex; gap: 1rem; }
-    .server-btn { background-color: #0f172a; color: #cbd5e1; border: 1px solid #334155; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .server-btn { background-color: #0f172a; color: #cbd5e1; border: 1px solid #334155; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: all 0.2s ease; }
     .server-btn.active, .server-btn:hover { background-color: #38bdf8; color: #0f172a; border-color: #38bdf8; }
 
     .movie-details { background-color: #1e293b; padding: 1.5rem; border-radius: 14px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 0.6rem; }
     .movie-title-large { font-size: 1.6rem; color: #fff; }
     .movie-meta-info { display: flex; gap: 1.5rem; font-size: 0.9rem; color: #94a3b8; }
-    .movie-desc { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+    .movie-desc { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; margin-top: 0.5rem; }
 
-    footer { background-color: #1e293b; text-align: center; padding: 1.5rem; border-top: 1px solid #334155; font-size: 0.85rem; color: #94a3b8; }
+    footer { background-color: #1e293b; text-align: center; padding: 1.5rem; border-top: 1px solid #334155; font-size: 0.85rem; color: #94a3b8; margin-top: auto; }
+
+    @media (max-width: 768px) {
+      header, .watch-container { width: calc(100% - 20px); }
+      .servers-buttons { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
     <div class="logo">أنيس موفيز</div>
     <a href="index.html" class="back-home">الرئيسية ←</a>
   </header>
 
+  <!-- Watch Section -->
   <div class="watch-container">
+    
+    <!-- Video Player -->
     <div class="player-box">
-      <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+      <iframe id="videoPlayer" src="" allowfullscreen></iframe>
     </div>
 
-    <!-- السيرفرات بحد أقصى سيرفرين كما طلبت -->
+    <!-- Servers Section (Max 2 Servers) -->
     <div class="servers-section">
       <span class="servers-title">اختر سيرفر المشاهدة:</span>
-      <div class="servers-buttons">
-        <button class="server-btn active" onclick="changeServer('https://www.youtube.com/embed/dQw4w9WgXcQ', this)">السيرفر الرئيسي (1)</button>
-        <button class="server-btn" onclick="changeServer('https://www.dailymotion.com/embed/video/x8om2p8', this)">السيرفر الاحتياطي (2)</button>
+      <div class="servers-buttons" id="serversButtons">
+        <!-- سيتم تعبئة الأزرار ديناميكياً حسب توفر الروابط -->
       </div>
     </div>
 
+    <!-- Movie Details -->
     <div class="movie-details">
-      <h1 class="movie-title-large">رحلة الفضاء المجهولة</h1>
-      <div class="movie-meta-info">
-        <span>السنة: 2024</span>
-        <span>التصنيف: خيال علمي</span>
+      <h1 class="movie-title-large" id="movieTitle">جاري تحميل الفيلم...</h1>
+      <div class="movie-meta-info" id="movieMeta">
+        <!-- تفاصيل السنة والتصنيف والتقييم -->
       </div>
-      <p class="movie-desc">تدور أحداث الفيلم حول رحلة استكشافية مذهلة في الفضاء العميق.</p>
+      <p class="movie-desc" id="movieDesc"></p>
     </div>
+
   </div>
 
+  <!-- Footer -->
   <footer>
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
+  <!-- Supabase CDN & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script>
-    function changeServer(url, btn) {
-      document.getElementById('videoPlayer').src = url;
-      document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    // وظيفة للتبديل بين السيرفرات
+    function changeServer(videoUrl, btnElement) {
+      if (!videoUrl) return;
+      document.getElementById('videoPlayer').src = videoUrl;
+      document.querySelectorAll('.server-btn').forEach(btn => btn.classList.remove('active'));
+      if (btnElement) btnElement.classList.add('active');
     }
+
+    // جلب تفاصيل الفيلم من قاعدة البيانات بناءً على الـ ID في الرابط
+    async function loadMovieDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieId = urlParams.get('id');
+
+      if (!movieId) {
+        document.getElementById('movieTitle').innerText = 'لم يتم تحديد الفيلم';
+        return;
+      }
+
+      const { data: movie, error } = await supabaseClient
+        .from('movies')
+        .select('*')
+        .eq('id', movieId)
+        .single();
+
+      if (error || !movie) {
+        document.getElementById('movieTitle').innerText = 'عذراً، الفيلم غير موجود أو حدث خطأ في التحميل.';
+        return;
+      }
+
+      // تعبئة البيانات في الواجهة
+      document.getElementById('movieTitle').innerText = movie.title;
+      document.getElementById('movieDesc').innerText = movie.description || 'لا يوجد وصف متاح لهذا الفيلم.';
+      document.getElementById('movieMeta').innerHTML = `
+        <span>السنة: ${movie.release_year || 'N/A'}</span>
+        <span>التصنيف: ${movie.category || 'N/A'}</span>
+        <span>التقييم: ★ ${movie.rating || 'N/A'}</span>
+      `;
+
+      // إعداد السيرفرات (بحد أقصى سيرفرين كما طلبت)
+      const serversContainer = document.getElementById('serversButtons');
+      serversContainer.innerHTML = '';
+
+      let defaultUrl = '';
+
+      if (movie.server1_url) {
+        defaultUrl = movie.server1_url;
+        serversContainer.innerHTML += `
+          <button class="server-btn active" onclick="changeServer('${movie.server1_url}', this)">السيرفر الرئيسي (1)</button>
+        `;
+      }
+
+      if (movie.server2_url) {
+        if (!defaultUrl) defaultUrl = movie.server2_url;
+        serversContainer.innerHTML += `
+          <button class="server-btn ${!movie.server1_url ? 'active' : ''}" onclick="changeServer('${movie.server2_url}', this)">السيرفر الاحتياطي (2)</button>
+        `;
+      }
+
+      if (!movie.server1_url && !movie.server2_url) {
+        serversContainer.innerHTML = '<span style="color: #94a3b8; font-size: 0.9rem;">لا توجد روابط مشاهدة متاحة حالياً.</span>';
+      } else {
+        // تشغيل السيرفر الافتراضي تلقائياً
+        changeServer(defaultUrl, serversContainer.querySelector('.server-btn'));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMovieDetails();
+    });
   </script>
 </body>
 </html>
