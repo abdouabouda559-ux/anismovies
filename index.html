@@ -3,150 +3,585 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أنيس موفيز - AnisMovies</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>أنيس موفيز - الرئيسية</title>
   <style>
-    /* تنسيقات التصميم الأصلي للموقع */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Floating & Transparent Header */
     header {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.9rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 30px;
-      background-color: #1e293b;
-      border-bottom: 1px solid #334155;
+      position: sticky;
+      top: 15px;
+      z-index: 100;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 15px auto 0 auto;
+      border-radius: 14px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
-    .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #38bdf8;
-    }
-    .user-section {
+
+    .header-right {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 1.5rem;
     }
-    .profile-badge {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      background-color: #334155;
-      padding: 6px 14px;
-      border-radius: 30px;
-    }
-    #user-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    #username-display {
-      font-size: 14px;
-      color: #38bdf8;
+
+    .logo {
+      font-size: 1.5rem;
       font-weight: bold;
+      color: #38bdf8;
     }
-    .auth-btn {
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 20px;
+      padding: 0.4rem 1rem;
+      width: 260px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    /* Auth Buttons Header */
+    .header-auth-btns {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-login {
+      background: transparent;
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-login:hover {
+      background-color: rgba(56, 189, 248, 0.1);
+    }
+
+    .btn-signup {
       background-color: #38bdf8;
       color: #0f172a;
       border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-signup:hover {
+      background-color: #0ea5e9;
+    }
+
+    /* Floating Categories Bar */
+    .categories-container {
+      position: sticky;
+      top: 85px;
+      z-index: 90;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.7rem 1.5rem;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 10px auto 0 auto;
+      border-radius: 14px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .category-tags {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+    }
+
+    .category-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tag {
+      background: rgba(30, 41, 59, 0.6);
+      color: #cbd5e1;
+      padding: 0.4rem 1.1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      cursor: pointer;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tag:hover, .tag.active {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
       font-weight: bold;
     }
-    .main-content {
-      padding: 50px;
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(rgba(15, 23, 42, 0.5), #0f172a), 
+                  url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+      margin: 1.5rem auto 2rem auto;
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      border-radius: 16px;
+    }
+
+    .hero-banner h1 {
+      font-size: 2.2rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-banner p {
+      color: #cbd5e1;
+      max-width: 600px;
+      font-size: 0.95rem;
+    }
+
+    /* Movies Grid */
+    .movies-container {
+      width: calc(100% - 40px);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-bottom: 3rem;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #38bdf8;
+      border-right: 4px solid #38bdf8;
+      padding-right: 8px;
+    }
+
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .movie-card {
+      background-color: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .poster-box {
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .poster-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(15, 23, 42, 0.8);
+      color: #fbbf24;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .movie-info {
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .movie-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* Auth Modal */
+    .auth-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(15, 23, 42, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .auth-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      padding: 2rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      color: #fff;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.6rem;
+      cursor: pointer;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.05rem;
+      cursor: pointer;
+      font-weight: bold;
+      padding-bottom: 0.4rem;
+    }
+
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom: 2px solid #38bdf8;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .auth-form h3 {
+      margin-bottom: 0.2rem;
+      font-size: 1.2rem;
+    }
+
+    .auth-form input {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      padding: 0.8rem;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+    }
+
+    .submit-btn {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    /* صندوق الرسائل الأنيق بداخل الفورم */
+    .form-message {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
       text-align: center;
+      line-height: 1.4;
+    }
+    .form-message.error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+    .form-message.success {
+      background-color: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    footer {
+      background-color: #1e293b;
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid #334155;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        width: calc(100% - 20px);
+      }
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .search-box {
+        width: 100%;
+      }
+      .categories-container {
+        width: calc(100% - 20px);
+        top: 150px;
+      }
+      .hero-banner, .movies-container {
+        width: calc(100% - 20px);
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
-    <div class="logo">أنيس موفيز 🎬</div>
-    <div class="user-section">
-      <!-- حاوية اسم المستخدم وصورة البروفايل (تظهر عند تسجيل الدخول) -->
-      <div id="profile-badge" class="profile-badge">
-        <img id="user-avatar" src="" alt="صورة البروفايل">
-        <span id="username-display">اسم المستخدم</span>
+    <div class="header-right">
+      <div class="logo">أنيس موفيز</div>
+      <div class="header-auth-btns">
+        <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
+        <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
       </div>
-      <!-- زر تسجيل الدخول / الخروج -->
-      <button id="auth-btn" class="auth-btn" onclick="openAuthModal()">تسجيل الدخول</button>
+    </div>
+    
+    <div class="search-box">
+      <input type="text" placeholder="ابحث عن فيلم أو مسلسل...">
     </div>
   </header>
 
-  <div class="main-content">
-    <h1>أهلاً بك في منصة أنيس موفيز</h1>
-    <p>استمتع بمشاهدة أحدث الأفلام والمسلسلات بجودة عالية.</p>
+  <!-- Categories Bar -->
+  <div class="categories-container">
+    <div class="category-tags">
+      <span class="tag active">الكل</span>
+      <span class="tag">أكشن</span>
+      <span class="tag">دراما</span>
+      <span class="tag">أنمي</span>
+      <span class="tag">خيال علمي</span>
+    </div>
   </div>
 
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <h1>عالم الأكشن والإثارة</h1>
+    <p>شاهد أحدث الأفلام والمسلسلات بجودة عالية وسيرفرات مشاهدة مباشرة سريعة.</p>
+  </div>
+
+  <!-- Movies List -->
+  <div class="movies-container">
+    <h2 class="section-title">أحدث الإضافات</h2>
+    <div class="movies-grid">
+      <!-- جلب الأفلام من Supabase -->
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="auth-modal-overlay" id="authModal">
+    <div class="auth-card">
+      <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+      <div class="auth-tabs">
+        <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
+        <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <h3>مرحباً بك مجدداً</h3>
+        <div id="loginMessage" class="form-message"></div>
+        <input type="email" placeholder="البريد الإلكتروني" required>
+        <input type="password" placeholder="كلمة المرور" required>
+        <button type="submit" class="submit-btn">دخول</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" style="display: none;">
+        <h3>انضم إلينا الآن</h3>
+        <div id="signupMessage" class="form-message"></div>
+        <input type="email" placeholder="البريد الإلكتروني" required>
+        <input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+        <button type="submit" class="submit-btn">إنشاء الحساب</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
+  </footer>
+
+  <!-- Supabase CDN & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script>
-    // إعدادات Supabase الخاصة بالمشروع
-    const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // ضع مفتاح الـ Anon الخاص بك هنا
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم لمنع أي ظهور للنافذة المنبثقة
+    window.alert = function(msg) {
+      const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
+      showFormMessage(activeForm, msg, false);
+    };
 
-    // دالة فحص جلسة المستخدم وتحديث الهيدر تلقائياً
-    async function checkUserSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      
-      const profileBadge = document.getElementById('profile-badge');
-      const usernameDisplay = document.getElementById('username-display');
-      const userAvatar = document.getElementById('user-avatar');
-      const authBtn = document.getElementById('auth-btn');
+    function openAuthModal(mode) {
+      document.getElementById('authModal').style.display = 'flex';
+      switchTab(mode);
+      hideFormMessages();
+    }
 
-      if (session && session.user) {
-        const userId = session.user.id;
-        
-        // جلب الـ username وصورة البروفايل من جدول profiles
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('username, avatar_url')
-          .eq('id', userId)
-          .single();
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+      hideFormMessages();
+    }
 
-        if (profile) {
-          usernameDisplay.textContent = profile.username || session.user.email.split('@')[0];
-          userAvatar.src = profile.avatar_url || 'https://www.w3schools.com/howto/img_avatar.png';
-        } else {
-          usernameDisplay.textContent = session.user.email.split('@')[0];
-          userAvatar.src = 'https://www.w3schools.com/howto/img_avatar.png';
+    function hideFormMessages() {
+      document.getElementById('loginMessage').style.display = 'none';
+      document.getElementById('signupMessage').style.display = 'none';
+    }
+
+    function switchTab(tab) {
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
+      document.getElementById('signupForm').style.display = tab === 'signup' ? 'flex' : 'none';
+      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+      document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+      hideFormMessages();
+    }
+
+    window.onclick = (e) => {
+      if (e.target === document.getElementById('authModal')) closeAuthModal();
+    }
+
+    // دالة عرض الرسائل المباشرة داخل الفورم
+    function showFormMessage(formType, message, isSuccess = false) {
+      const msgBox = document.getElementById(formType + 'Message');
+      if (!msgBox) return;
+      msgBox.innerText = message;
+      msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
+      msgBox.style.display = 'block';
+    }
+
+    // دالة جلب وعرض الأفلام من قاعدة البيانات
+    async function loadMoviesFromDatabase() {
+      const moviesGrid = document.querySelector('.movies-grid');
+      if (!moviesGrid || typeof supabaseClient === 'undefined') return;
+
+      try {
+        const { data: movies, error } = await supabaseClient
+          .from('movies')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!movies || movies.length === 0) {
+          moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
+          return;
         }
 
-        profileBadge.style.display = 'flex';
-        authBtn.textContent = 'تسجيل الخروج';
-        authBtn.style.backgroundColor = '#ef4444';
-        authBtn.style.color = 'white';
-        authBtn.onclick = handleSignOut;
-      } else {
-        profileBadge.style.display = 'none';
-        authBtn.textContent = 'تسجيل الدخول';
-        authBtn.style.backgroundColor = '#38bdf8';
-        authBtn.style.color = '#0f172a';
-        authBtn.onclick = openAuthModal;
+        moviesGrid.innerHTML = '';
+        movies.forEach(movie => {
+          moviesGrid.innerHTML += `
+            <a href="watch.html?id=${movie.id}" class="movie-card">
+              <div class="poster-box">
+                <span class="badge">★ ${movie.rating || 'N/A'}</span>
+                <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
+              </div>
+              <div class="movie-info">
+                <div class="movie-title">${movie.title}</div>
+                <div class="movie-meta">
+                  <span>${movie.release_year || ''}</span>
+                  <span>${movie.category || ''}</span>
+                </div>
+              </div>
+            </a>
+          `;
+        });
+      } catch (err) {
+        console.error('خطأ أثناء جلب البيانات:', err.message);
       }
     }
 
-    // دالة تسجيل الخروج
-    async function handleSignOut() {
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    }
-
-    // دالة فتح مودل تسجيل الدخول (يمكنك ربطها بنافذتك الحالية)
-    function openAuthModal() {
-      alert('قم بربط هذه الدالة بنافذة Modal تسجيل الدخول الخاصة بك');
-    }
-
-    // التحقق عند تحميل الصفحة
-    window.addEventListener('DOMContentLoaded', checkUserSession);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMoviesFromDatabase();
+    });
   </script>
-
 </body>
 </html>
