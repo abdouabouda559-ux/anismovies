@@ -1,6 +1,7 @@
-// supabase-config.js - ملف الاتصال الموحد لـ Supabase
+// supabase-config.js - ملف الاتصال الموحد وحماية الأمان لـ Supabase
 
-const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co/';
+// الرابط الصحيح لمشروعك (مع التحقق من نطاق supabase.co)
+const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2';
 
 // تهيئة عميل Supabase
@@ -17,7 +18,7 @@ async function checkUserSession() {
     const userId = session.user.id;
 
     // فحص هل المستخدم موجود في جدول المحظورين
-    const { data: banRecord, error: banError } = await supabaseClient
+    const { data: banRecord } = await supabaseClient
       .from('banned_users')
       .select('reason')
       .eq('user_id', userId)
