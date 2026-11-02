@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AnisMovies - الرئيسية</title>
+  <title>أنيس موفيز - الرئيسية</title>
   <style>
     /* Reset & Base Styles */
     * {
@@ -266,6 +266,7 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .movie-card:hover {
@@ -466,7 +467,7 @@
   <!-- Header -->
   <header>
     <div class="header-right">
-      <div class="logo">AnisMovies</div>
+      <div class="logo">أنيس موفيز</div>
       
       <!-- أزرار تسجيل الدخول / إنشاء حساب (تظهر للزائر) -->
       <div id="authButtonsContainer" class="header-auth-btns">
@@ -508,7 +509,7 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-      <!-- جلب الأفلام من Supabase -->
+      <!-- جلب الأفلام من Supabase ديناميكياً -->
     </div>
   </div>
 
@@ -522,7 +523,7 @@
       </div>
 
       <!-- Login Form -->
-      <form id="loginForm" class="auth-form">
+      <form id="loginForm" class="auth-form" onsubmit="handleLoginSubmit(event)">
         <h3>مرحباً بك مجدداً</h3>
         <div id="loginMessage" class="form-message"></div>
         <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
@@ -531,7 +532,7 @@
       </form>
 
       <!-- Signup Form -->
-      <form id="signupForm" class="auth-form" style="display: none;">
+      <form id="signupForm" class="auth-form" style="display: none;" onsubmit="handleSignupSubmit(event)">
         <h3>انضم إلينا الآن</h3>
         <div id="signupMessage" class="form-message"></div>
         <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
@@ -545,13 +546,14 @@
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
-  <!-- Supabase CDN & Config -->
+  <!-- Supabase CDN & Global Config Script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
-    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم لمنع أي ظهور للنافذة المنبثقة
+    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم
     window.alert = function(msg) {
-      const activeForm = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'signup';
+      const loginForm = document.getElementById('loginForm');
+      const activeForm = loginForm && loginForm.style.display !== 'none' ? 'login' : 'signup';
       showFormMessage(activeForm, msg, false);
     };
 
@@ -567,8 +569,10 @@
     }
 
     function hideFormMessages() {
-      document.getElementById('loginMessage').style.display = 'none';
-      document.getElementById('signupMessage').style.display = 'none';
+      const lMsg = document.getElementById('loginMessage');
+      const sMsg = document.getElementById('signupMessage');
+      if (lMsg) lMsg.style.display = 'none';
+      if (sMsg) sMsg.style.display = 'none';
     }
 
     function switchTab(tab) {
@@ -580,10 +584,10 @@
     }
 
     window.onclick = (e) => {
-      if (e.target === document.getElementById('authModal')) closeAuthModal();
+      const authModal = document.getElementById('authModal');
+      if (e.target === authModal) closeAuthModal();
     }
 
-    // دالة عرض الرسائل المباشرة داخل الفورم
     function showFormMessage(formType, message, isSuccess = false) {
       const msgBox = document.getElementById(formType + 'Message');
       if (!msgBox) return;
@@ -592,96 +596,67 @@
       msgBox.style.display = 'block';
     }
 
-    // دالة فحص وتحديث الهيدر بحالة المستخدم وصورة البروفايل واسمه
-    async function checkUserSessionAndHeader() {
-      if (typeof supabaseClient === 'undefined') return;
+    // معالجة تسجيل الدخول الفعلي عبر Supabase
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
 
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const authButtonsContainer = document.getElementById('authButtonsContainer');
-      const userProfileBadge = document.getElementById('userProfileBadge');
-      const headerUsername = document.getElementById('headerUsername');
-      const headerUserAvatar = document.getElementById('headerUserAvatar');
-
-      if (session && session.user) {
-        // إخفاء أزرار الدخول، وإظهار بروفايل المستخدم
-        authButtonsContainer.style.display = 'none';
-        userProfileBadge.style.display = 'flex';
-
-        const userId = session.user.id;
-        
-        // جلب بيانات الـ username وصورة البروفايل من جدول profiles
-        const { data: profile, error } = await supabaseClient
-          .from('profiles')
-          .select('username, avatar_url')
-          .eq('id', userId)
-          .single();
-
-        if (profile) {
-          headerUsername.textContent = profile.username || session.user.email.split('@')[0];
-          if (profile.avatar_url) {
-            headerUserAvatar.src = profile.avatar_url;
-          }
-        } else {
-          headerUsername.textContent = session.user.email.split('@')[0];
-        }
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        showFormMessage('login', error.message, false);
       } else {
-        // إظهار أزرار الدخول، وإخفاء بروفايل المستخدم
-        authButtonsContainer.style.display = 'flex';
-        userProfileBadge.style.display = 'none';
+        showFormMessage('login', 'تم تسجيل الدخول بنجاح! جاري التوجيه...', true);
+        setTimeout(() => window.location.reload(), 1000);
       }
     }
 
-    // دالة تسجيل الخروج
-    async function handleSignOut() {
-      if (typeof supabaseClient === 'undefined') return;
-      await supabaseClient.auth.signOut();
-      window.location.reload();
+    // معالجة إنشاء الحساب الفعلي عبر Supabase
+    async function handleSignupSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        showFormMessage('signup', error.message, false);
+      } else {
+        showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يجدر التحقق من بريدك أو تسجيل الدخول.', true);
+      }
     }
 
-    // دالة جلب وعرض الأفلام من قاعدة البيانات
-    async function loadMoviesFromDatabase() {
-      const moviesGrid = document.querySelector('.movies-grid');
-      if (!moviesGrid || typeof supabaseClient === 'undefined') return;
-
-      try {
-        const { data: movies, error } = await supabaseClient
-          .from('movies')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        if (!movies || movies.length === 0) {
-          moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مضافة حالياً في قاعدة البيانات.</p>';
-          return;
+    // حماية واجهة الموقع من السحب الآلي وفحص العناصر (Scraping Protection)
+    let rapidActionsCount = 0;
+    window.addEventListener('click', () => {
+      rapidActionsCount++;
+      setTimeout(() => rapidActionsCount--, 1000);
+      if (rapidActionsCount > 25) {
+        if (typeof logSecurityViolation === 'function') {
+          logSecurityViolation('SCRAPING_ATTEMPT', 'تم اكتشاف نشاط بوت آلي أو نقرات سريعة مشبوهة');
         }
-
-        moviesGrid.innerHTML = '';
-        movies.forEach(movie => {
-          moviesGrid.innerHTML += `
-            <a href="watch.html?id=${movie.id}" class="movie-card">
-              <div class="poster-box">
-                <span class="badge">★ ${movie.rating || 'N/A'}</span>
-                <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
-              </div>
-              <div class="movie-info">
-                <div class="movie-title">${movie.title}</div>
-                <div class="movie-meta">
-                  <span>${movie.release_year || ''}</span>
-                  <span>${movie.category || ''}</span>
-                </div>
-              </div>
-            </a>
-          `;
-        });
-      } catch (err) {
-        console.error('خطأ أثناء جلب البيانات:', err.message);
       }
-    }
+    });
 
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (typeof logSecurityViolation === 'function') {
+        logSecurityViolation('UNAUTHORIZED_ACTION', 'محاولة استخدام الزر الأيمن للفحص أو النسخ');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+        if (typeof logSecurityViolation === 'function') {
+          logSecurityViolation('INSPECT_ATTEMPT', 'محاولة فتح أدوات المطورين وسحب السيرفرات');
+        }
+      }
+    });
+
+    // تنفيذ الوظائف عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', () => {
-      checkUserSessionAndHeader();
-      loadMoviesFromDatabase();
+      if (typeof checkUserSessionAndHeader === 'function') checkUserSessionAndHeader();
+      if (typeof loadMoviesFromDatabase === 'function') loadMoviesFromDatabase();
     });
   </script>
 </body>
