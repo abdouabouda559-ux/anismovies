@@ -1,114 +1,78 @@
-// تهيئة الاتصال بمشروع Supabase
-const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co/';
-const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2'; // استبدل هذا بالمفتاح الخاص بك (anon public)
+// supabase-config.js - ملف الاتصال الموحد لـ Supabase
 
+const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2';
+
+// تهيئة عميل Supabase
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// دالة مساعدة لعرض الرسائل داخل الفورم بشكل أنيق
-function showFormMessage(formType, message, isSuccess = false) {
-  const msgBox = document.getElementById(formType + 'Message');
-  if (!msgBox) return;
-  msgBox.innerText = message;
-  msgBox.className = 'form-message ' + (isSuccess ? 'success' : 'error');
-  msgBox.style.display = 'block';
-}
-
-// 1. دالة إنشاء حساب جديد (Sign Up)
-async function signUpUser(email, password) {
-  try {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email: email,
-      password: password
-    });
-
-    if (error) throw error;
-
-    showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك الإلكتروني لتأكيده.', true);
-  } catch (error) {
-    showFormMessage('signup', 'فشل إنشاء الحساب: ' + error.message, false);
-  }
-}
-
-// 2. دالة تسجيل الدخول (Sign In)
-async function signInUser(email, password) {
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-
-    if (error) throw error;
-
-    showFormMessage('login', 'تم تسجيل الدخول بنجاح! مرحباً بك.', true);
-    setTimeout(() => {
-      closeAuthModal();
-      checkUserSession();
-    }, 1200);
-  } catch (error) {
-    // عرض الرسالة أنيقة داخل الفورم بدلاً من alert المنبثق
-    showFormMessage('login', 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', false);
-  }
-}
-
-// 3. دالة تسجيل الخروج (Sign Out)
-async function signOutUser() {
-  const { error } = await supabaseClient.auth.signOut();
-  if (!error) {
-    checkUserSession();
-  }
-}
-
-// 4. التحقق من الجلسة وتحديث الهيدر وصورة البروفايل
+/**
+ * دالة التحقق من جلسة المستخدم وفحص ما إذا كان محظوراً
+ */
 async function checkUserSession() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  const authContainer = document.querySelector('.header-auth-btns');
+  try {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    if (error || !session) return null;
 
-  if (!authContainer) return;
+    const userId = session.user.id;
 
-  if (session) {
-    const userEmail = session.user.email;
-    const userName = userEmail.split('@')[0];
-    const initial = userName.charAt(0).toUpperCase();
+    // فحص هل المستخدم موجود في جدول المحظورين
+    const { data: banRecord, error: banError } = await supabaseClient
+      .from('banned_users')
+      .select('reason')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    authContainer.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <div style="width: 32px; height: 32px; background-color: #38bdf8; color: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
-          ${initial}
-        </div>
-        <span style="color: #38bdf8; font-size: 0.85rem; font-weight: bold;">${userName}</span>
-      </div>
-      <button class="btn-login" onclick="signOutUser()">خروج</button>
-    `;
-  } else {
-    authContainer.innerHTML = `
-      <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
-      <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
-    `;
+    if (banRecord) {
+      alert(`تم حظرك من المنصة. السبب: ${banRecord.reason}`);
+      await supabaseClient.auth.signOut();
+      window.location.reload();
+      return null;
+    }
+
+    return session.user;
+  } catch (err) {
+    console.error('Auth Session Error:', err);
+    return null;
   }
 }
 
-// ربط النماذج عند تحميل المستند
-document.addEventListener('DOMContentLoaded', () => {
-  checkUserSession();
+/**
+ * دالة لتسجيل المخالفات الأمنية أو محاولات السحب
+ */
+async function logSecurityViolation(violationType, details = '') {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const userId = session ? session.user.id : null;
 
-  const loginForm = document.getElementById('loginForm');
-  const signupForm = document.getElementById('signupForm');
+    await supabaseClient.from('user_security_logs').insert([
+      {
+        user_id: userId,
+        violation_type: violationType,
+        details: details,
+        ip_address: 'Client-Side Action'
+      }
+    ]);
 
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = loginForm.querySelector('input[type="email"]').value;
-      const password = loginForm.querySelector('input[type="password"]').value;
-      signInUser(email, password);
-    });
+    if (userId) {
+      const { count, error } = await supabaseClient
+        .from('user_security_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      if (!error && count >= 5) {
+        await supabaseClient.from('banned_users').insert([
+          {
+            user_id: userId,
+            reason: 'تكرار المحاولات المشبوهة واختراق قواعد الاستخدام (Automated Ban)'
+          }
+        ]);
+        alert('تم حظرك نهائياً بسبب رصد سلوكيات مشبوهة ومتكررة.');
+        await supabaseClient.auth.signOut();
+        window.location.reload();
+      }
+    }
+  } catch (err) {
+    console.error('Security Logging Error:', err);
   }
-
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = signupForm.querySelector('input[type="email"]').value;
-      const password = signupForm.querySelector('input[type="password"]').value;
-      signUpUser(email, password);
-    });
-  }
-});
+}
