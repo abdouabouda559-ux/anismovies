@@ -26,7 +26,7 @@
       color: inherit;
     }
 
-    /* Floating & Transparent Header */
+    /* Header */
     header {
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(12px);
@@ -116,7 +116,7 @@
       background-color: #0ea5e9;
     }
 
-    /* User Profile & Animated Dropdown Menu */
+    /* User Profile Badge & Dropdown */
     .user-profile-wrapper {
       position: relative;
       display: none;
@@ -157,7 +157,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Dropdown Menu with Smooth Animation */
     .profile-dropdown-menu {
       position: absolute;
       top: calc(100% + 12px);
@@ -172,7 +171,6 @@
       flex-direction: column;
       gap: 4px;
       z-index: 999;
-      
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px) scale(0.95);
@@ -218,6 +216,7 @@
     .dropdown-item.logout {
       color: #f87171;
     }
+
     .dropdown-item.logout:hover {
       background-color: rgba(239, 68, 68, 0.15);
       color: #f87171;
@@ -402,7 +401,7 @@
       padding: 2rem;
       border-radius: 16px;
       width: 90%;
-      max-width: 420px;
+      max-width: 460px;
       position: relative;
       color: #fff;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
@@ -532,13 +531,11 @@
     <div class="header-right">
       <div class="logo">أنيس موفيز</div>
       
-      <!-- أزرار تسجيل الدخول / إنشاء حساب -->
       <div id="authButtonsContainer" class="header-auth-btns">
         <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
       </div>
 
-      <!-- بروفايل المستخدم والقائمة المنبثقة التفاعلية -->
       <div id="userProfileWrapper" class="user-profile-wrapper">
         <div class="user-profile-badge" id="profileBadgeBtn">
           <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
@@ -613,13 +610,13 @@
     </div>
   </div>
 
-  <!-- Feature Modal (قوائم التشغيل، المفضلة، إعدادات الحساب، والمزيد) -->
+  <!-- Feature Modal (قوائم التشغيل التفاعلية وفتحها، المفضلة، إعدادات الحساب) -->
   <div class="custom-modal-overlay" id="featureModal">
     <div class="custom-modal-card">
       <button class="close-btn" onclick="closeFeatureModal()">&times;</button>
       <h3 id="featureModalTitle" style="color: #38bdf8; margin-bottom: 1rem; font-size: 1.3rem;">عنوان النافذة</h3>
       <div id="featureModalBody" style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
-        محتوى النافذة يظهر هنا...
+        محتوى النافذة...
       </div>
     </div>
   </div>
@@ -690,7 +687,7 @@
       }
     });
 
-    // التحكم بالنافذة المنبثقة للميزات
+    // التحكم بالنافذة المنبثقة وتفاعل فتح القوائم ورؤية محتواها
     async function openFeatureModal(type) {
       if (profileDropdownMenu) profileDropdownMenu.classList.remove('active');
       const modal = document.getElementById('featureModal');
@@ -723,7 +720,7 @@
             <input type="text" id="newPlaylistTitle" placeholder="عنوان القائمة الجديدة..." style="flex: 1; background: #0f172a; border: 1px solid #334155; padding: 0.6rem; border-radius: 8px; color: #fff; outline: none;">
             <button onclick="createNewPlaylistUser()" style="background: #38bdf8; color: #0f172a; border: none; padding: 0.6rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer;">إنشاء</button>
           </div>
-          <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
         `;
 
         if (!playlists || playlists.length === 0) {
@@ -731,8 +728,11 @@
         } else {
           playlists.forEach(pl => {
             html += `<div style="background: #0f172a; padding: 0.75rem; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
-              <span>${pl.title}</span>
-              <button onclick="deletePlaylist('${pl.id}')" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">حذف</button>
+              <span style="font-weight: bold; color: #38bdf8; cursor: pointer;" onclick="openSinglePlaylist('${pl.id}', '${pl.title}')">🎬 ${pl.title}</span>
+              <div style="display: flex; gap: 6px;">
+                <button onclick="openSinglePlaylist('${pl.id}', '${pl.title}')" style="background: #38bdf8; color: #0f172a; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">فتح</button>
+                <button onclick="deletePlaylist('${pl.id}')" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">حذف</button>
+              </div>
             </div>`;
           });
         }
@@ -743,7 +743,7 @@
         titleEl.textContent = '❤️ قائمة المشاهدة (Watchlist)';
         const { data: watchlist, error } = await supabaseClient
           .from('watchlist')
-          .select('id, movies(title, poster_url)')
+          .select('id, movies(id, title, poster_url)')
           .eq('user_id', user.id);
 
         if (error || !watchlist || watchlist.length === 0) {
@@ -751,13 +751,16 @@
           return;
         }
 
-        let html = '<div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">';
+        let html = '<div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">';
         watchlist.forEach(item => {
           const m = item.movies;
           if (!m) return;
-          html += `<div style="background: #0f172a; padding: 0.5rem; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; gap: 10px;">
-            <img src="${m.poster_url}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;">
-            <span style="font-weight: bold; font-size: 0.9rem;">${m.title}</span>
+          html += `<div style="background: #0f172a; padding: 0.5rem; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="${m.poster_url}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;">
+              <span style="font-weight: bold; font-size: 0.9rem;">${m.title}</span>
+            </div>
+            <a href="watch.html?id=${m.id}" style="background: #38bdf8; color: #0f172a; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">مشاهدة</a>
           </div>`;
         });
         html += '</div>';
@@ -798,6 +801,86 @@
             <p style="color: #38bdf8; margin-top: 0.5rem;">شكراً لاستخدامك المنصة! نحن نحرص دائماً على توفير أقصى درجات الأمان والسرعة.</p>
           </div>
         `;
+      }
+    }
+
+    // فتح قائمة تشغيل معينة لعرض الأفلام التي بداخلها وإضافة أفلام جديدة
+    async function openSinglePlaylist(playlistId, playlistTitle) {
+      const titleEl = document.getElementById('featureModalTitle');
+      const bodyEl = document.getElementById('featureModalBody');
+
+      titleEl.textContent = `🎬 قائمة: ${playlistTitle}`;
+      bodyEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل محتوى القائمة...</p>';
+
+      // 1. جلب العناصر المضافة لهذه القائمة
+      const { data: items, error } = await supabaseClient
+        .from('playlist_items')
+        .select('id, movie_id, movies(id, title, poster_url)')
+        .eq('playlist_id', playlistId);
+
+      let html = `
+        <button onclick="openFeatureModal('playlists')" style="background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-bottom: 1rem;">← العودة للقوائم</button>
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 4px;">إضافة فيلم لهذه القائمة:</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="selectMovieToAdd" style="flex: 1; background: #0f172a; border: 1px solid #334155; padding: 0.5rem; border-radius: 8px; color: #fff;">
+              ${allMovies.map(m => `<option value="${m.id}">${m.title}</option>`).join('')}
+            </select>
+            <button onclick="addMovieToPlaylist('${playlistId}', '${playlistTitle}')" style="background: #38bdf8; color: #0f172a; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer;">إضافة</button>
+          </div>
+        </div>
+        <div style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+      `;
+
+      if (!items || items.length === 0) {
+        html += '<p style="color: #94a3b8; text-align: center;">هذه القائمة فارغة حالياً.</p>';
+      } else {
+        items.forEach(item => {
+          const m = item.movies;
+          if (!m) return;
+          html += `<div style="background: #0f172a; padding: 0.5rem; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="${m.poster_url}" style="width: 35px; height: 45px; object-fit: cover; border-radius: 4px;">
+              <span style="font-weight: bold; font-size: 0.85rem;">${m.title}</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <a href="watch.html?id=${m.id}" style="background: #38bdf8; color: #0f172a; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold;">مشاهدة</a>
+              <button onclick="removeMovieFromPlaylist('${item.id}', '${playlistId}', '${playlistTitle}')" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">إزالة</button>
+            </div>
+          </div>`;
+        });
+      }
+
+      html += `</div>`;
+      bodyEl.innerHTML = html;
+    }
+
+    // إضافة فيلم لقائمة التشغيل
+    async function addMovieToPlaylist(playlistId, playlistTitle) {
+      const select = document.getElementById('selectMovieToAdd');
+      if (!select) return;
+      const movieId = select.value;
+
+      const { error } = await supabaseClient
+        .from('playlist_items')
+        .insert([{ playlist_id: playlistId, movie_id: parseInt(movieId) }]);
+
+      if (error) {
+        alert('تعذر إضافة الفيلم بالقائمة (قد يكون مضافاً مسبقاً).');
+      } else {
+        openSinglePlaylist(playlistId, playlistTitle);
+      }
+    }
+
+    // إزالة فيلم من قائمة التشغيل
+    async function removeMovieFromPlaylist(itemId, playlistId, playlistTitle) {
+      const { error } = await supabaseClient
+        .from('playlist_items')
+        .delete()
+        .eq('id', itemId);
+
+      if (!error) {
+        openSinglePlaylist(playlistId, playlistTitle);
       }
     }
 
