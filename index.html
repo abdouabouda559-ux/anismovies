@@ -162,35 +162,37 @@
       position: absolute;
       top: calc(100% + 12px);
       left: 0;
-      width: 220px;
+      width: 230px;
       background-color: #1e293b;
       border: 1px solid #334155;
       border-radius: 14px;
-      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.6);
       padding: 0.5rem;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      z-index: 110;
+      z-index: 999;
       
       /* Animation states */
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px) scale(0.95);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
     }
 
     .profile-dropdown-menu.active {
       opacity: 1;
       visibility: visible;
       transform: translateY(0) scale(1);
+      pointer-events: auto;
     }
 
     .dropdown-item {
       background: transparent;
       border: none;
       color: #cbd5e1;
-      padding: 0.65rem 1rem;
+      padding: 0.7rem 1rem;
       text-align: right;
       border-radius: 8px;
       font-size: 0.9rem;
@@ -198,6 +200,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      width: 100%;
       transition: all 0.2s ease;
     }
 
@@ -382,8 +385,8 @@
       color: #94a3b8;
     }
 
-    /* Auth Modal */
-    .auth-modal-overlay {
+    /* Modals (Auth & Feature Modals) */
+    .custom-modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background-color: rgba(15, 23, 42, 0.85);
@@ -394,15 +397,16 @@
       backdrop-filter: blur(4px);
     }
 
-    .auth-card {
+    .custom-modal-card {
       background-color: #1e293b;
       border: 1px solid #334155;
       padding: 2rem;
       border-radius: 16px;
       width: 90%;
-      max-width: 400px;
+      max-width: 420px;
       position: relative;
       color: #fff;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     .close-btn {
@@ -535,19 +539,19 @@
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
       </div>
 
-      <!-- بروفايل المستخدم مع القائمة المنبثقة المتحركة -->
+      <!-- بروفايل المستخدم مع القائمة المنبثقة المتحركة التفاعلية -->
       <div id="userProfileWrapper" class="user-profile-wrapper">
-        <div class="user-profile-badge" onclick="toggleProfileDropdown(event)">
+        <div class="user-profile-badge" id="profileBadgeBtn">
           <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
           <span id="headerUsername">المستخدم</span>
         </div>
 
-        <!-- النافذة المنبثقة للبروفايل -->
+        <!-- النافذة المنبثقة للبروفايل (تحتوي على الأزرار المطلوبة بالكامل) -->
         <div id="profileDropdownMenu" class="profile-dropdown-menu">
-          <button class="dropdown-item" onclick="alert('خاصية قوائم التشغيل قريباً')">📁 قوائم التشغيل</button>
-          <button class="dropdown-item" onclick="alert('خاصية المفضلة قريباً')">❤️ المفضلة (Watchlist)</button>
-          <button class="dropdown-item" onclick="alert('خاصية إعدادات الحساب قريباً')">⚙️ إعدادات الحساب</button>
-          <button class="dropdown-item" onclick="alert('مرحباً بك في منصة أنيس موفيز v1.0')">ℹ️ والمزيد</button>
+          <button class="dropdown-item" onclick="openFeatureModal('playlists')">📁 قوائم التشغيل</button>
+          <button class="dropdown-item" onclick="openFeatureModal('watchlist')">❤️ المفضلة (Watchlist)</button>
+          <button class="dropdown-item" onclick="openFeatureModal('settings')">⚙️ إعدادات الحساب</button>
+          <button class="dropdown-item" onclick="openFeatureModal('more')">✨ والمزيد</button>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item logout" onclick="handleSignOut()">🚪 تسجيل الخروج</button>
         </div>
@@ -559,7 +563,7 @@
     </div>
   </header>
 
-  <!-- Categories Bar (تصنيفات تفاعلية) -->
+  <!-- Categories Bar (تصنيفات تفاعلية تعمل بالكامل) -->
   <div class="categories-container">
     <div class="category-tags">
       <span class="tag active" onclick="filterByCategory('الكل', this)">الكل</span>
@@ -584,9 +588,9 @@
     </div>
   </div>
 
-  <!-- Auth Modal -->
-  <div class="auth-modal-overlay" id="authModal">
-    <div class="auth-card">
+  <!-- Auth Modal (نافذة تسجيل الدخول / إنشاء حساب) -->
+  <div class="custom-modal-overlay" id="authModal">
+    <div class="custom-modal-card">
       <button class="close-btn" onclick="closeAuthModal()">&times;</button>
       <div class="auth-tabs">
         <button class="tab-btn" id="loginTab" onclick="switchTab('login')">تسجيل الدخول</button>
@@ -613,6 +617,17 @@
     </div>
   </div>
 
+  <!-- Feature Modal (نافذة عامة لعرض محتوى القوائم والمزيد عند النقر من القائمة المنبثقة) -->
+  <div class="custom-modal-overlay" id="featureModal">
+    <div class="custom-modal-card">
+      <button class="close-btn" onclick="closeFeatureModal()">&times;</button>
+      <h3 id="featureModalTitle" style="color: #38bdf8; margin-bottom: 1rem; font-size: 1.3rem;">عنوان النافذة</h3>
+      <div id="featureModalBody" style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+        محتوى النافذة يظهر هنا...
+      </div>
+    </div>
+  </div>
+
   <footer>
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
@@ -621,10 +636,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
-    let allMovies = []; // تخزين جميع الأفلام للفلترة
+    let allMovies = []; 
     let currentCategory = 'الكل';
 
-    // تجاوز الـ Alert الافتراضي لرسائل الفورم
+    // تجاوز الـ Alert الافتراضي
     window.alert = function(msg) {
       const loginForm = document.getElementById('loginForm');
       const activeForm = loginForm && loginForm.style.display !== 'none' ? 'login' : 'signup';
@@ -657,24 +672,58 @@
       hideFormMessages();
     }
 
-    // إدارة النافذة المنبثقة للبروفايل والأنميشن
-    function toggleProfileDropdown(e) {
-      e.stopPropagation();
-      const menu = document.getElementById('profileDropdownMenu');
-      menu.classList.toggle('active');
+    // تفاعل القائمة المنبثقة للبروفايل (فتح وإغلاق دقيق ومضمون)
+    const profileBadgeBtn = document.getElementById('profileBadgeBtn');
+    const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+
+    if (profileBadgeBtn) {
+      profileBadgeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdownMenu.classList.toggle('active');
+      });
     }
 
-    // إغلاق قائمة البروفايل عند النقر خارجها
+    // إغلاق القائمة المنبثقة والنوافذ عند النقر في أي مكان خارجها
     window.addEventListener('click', (e) => {
       const authModal = document.getElementById('authModal');
+      const featureModal = document.getElementById('featureModal');
+      
       if (e.target === authModal) closeAuthModal();
+      if (e.target === featureModal) closeFeatureModal();
 
-      const profileWrapper = document.getElementById('userProfileWrapper');
-      const profileMenu = document.getElementById('profileDropdownMenu');
-      if (profileWrapper && !profileWrapper.contains(e.target)) {
-        profileMenu.classList.remove('active');
+      const userProfileWrapper = document.getElementById('userProfileWrapper');
+      if (userProfileWrapper && !userProfileWrapper.contains(e.target)) {
+        if (profileDropdownMenu) profileDropdownMenu.classList.remove('active');
       }
     });
+
+    // التحكم بالنافذة المنبثقة للميزات (قوائم التشغيل، المفضلة، الإعدادات، والمزيد)
+    function openFeatureModal(type) {
+      if (profileDropdownMenu) profileDropdownMenu.classList.remove('active');
+      const modal = document.getElementById('featureModal');
+      const titleEl = document.getElementById('featureModalTitle');
+      const bodyEl = document.getElementById('featureModalBody');
+
+      modal.style.display = 'flex';
+
+      if (type === 'playlists') {
+        titleEl.textContent = '📁 قوائم التشغيل الخاصة بك';
+        bodyEl.innerHTML = '<p>ليس لديك أي قوائم تشغيل مضافة حالياً. يمكنك إنشاء قائمة جديدة قريباً لتنظيم أفلامك المفضلة.</p>';
+      } else if (type === 'watchlist') {
+        titleEl.textContent = '❤️ قائمة المشاهدة (Watchlist)';
+        bodyEl.innerHTML = '<p>قائمة الأفلام التي قمت بحفظها للمشاهدة لاحقاً ستظهر هنا بداخل حسابك.</p>';
+      } else if (type === 'settings') {
+        titleEl.textContent = '⚙️ إعدادات الحساب';
+        bodyEl.innerHTML = '<p>يمكنك من هنا تعديل اسم المستخدم، البريد الإلكتروني، أو تغيير كلمة المرور الخاصة بحسابك.</p>';
+      } else if (type === 'more') {
+        titleEl.textContent = '✨ والمزيد حول أنيس موفيز';
+        bodyEl.innerHTML = '<p>منصة أنيس موفيز النسخة الاحترافية 1.0. تم تطويرها بواسطة عبد الجليل لتقديم تجربة مشاهدة أفلام سريعة وآمنة ومحمية ضد السحب والسرقة.</p>';
+      }
+    }
+
+    function closeFeatureModal() {
+      document.getElementById('featureModal').style.display = 'none';
+    }
 
     function showFormMessage(formType, message, isSuccess = false) {
       const msgBox = document.getElementById(formType + 'Message');
@@ -684,7 +733,7 @@
       msgBox.style.display = 'block';
     }
 
-    // معالجة تسجيل الدخول الفعلي
+    // تسجيل الدخول الفعلي
     async function handleLoginSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -699,7 +748,7 @@
       }
     }
 
-    // معالجة إنشاء الحساب الفعلي
+    // إنشاء الحساب الفعلي
     async function handleSignupSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('signupEmail').value;
@@ -713,7 +762,7 @@
       }
     }
 
-    // جلب الأفلام من قاعدة البيانات وتخزينها
+    // جلب الأفلام من قاعدة البيانات
     async function loadMoviesFromDatabase() {
       const moviesGrid = document.querySelector('.movies-grid');
       if (!moviesGrid) return;
@@ -733,7 +782,7 @@
       }
     }
 
-    // دالة عرض الأفلام في الشبكة
+    // عرض الأفلام
     function renderMovies(moviesList) {
       const moviesGrid = document.querySelector('.movies-grid');
       if (!moviesGrid) return;
@@ -768,18 +817,15 @@
       });
     }
 
-    // تصفية الأفلام حسب التصنيف
+    // فلترة التصنيفات
     function filterByCategory(categoryName, element) {
       currentCategory = categoryName;
-      
-      // تحديث الأزرار النشطة (Active Tag)
       document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('active'));
       element.classList.add('active');
-
       applyFilters();
     }
 
-    // تصفية الأفلام حسب البحث والتصنيف معاً
+    // فلترة البحث
     function filterMovies() {
       applyFilters();
     }
@@ -796,7 +842,7 @@
       renderMovies(filtered);
     }
 
-    // فحص جلسة المستخدم وتحديث الهيدر
+    // فحص الجلسة والهيدر
     async function checkUserSessionAndHeader() {
       if (typeof checkUserSession !== 'function') return;
       const sessionUser = await checkUserSession();
@@ -830,35 +876,25 @@
       }
     }
 
-    // حماية واجهة الموقع من السحب الآلي وفحص العناصر
+    // حماية المنصة ضد السحب
     let rapidActionsCount = 0;
     window.addEventListener('click', () => {
       rapidActionsCount++;
       setTimeout(() => rapidActionsCount--, 1000);
       if (rapidActionsCount > 25) {
         if (typeof logSecurityViolation === 'function') {
-          logSecurityViolation('SCRAPING_ATTEMPT', 'تم اكتشاف نشاط بوت آلي أو نقرات سريعة مشبوهة');
+          logSecurityViolation('SCRAPING_ATTEMPT', 'نشاط بوت آلي مشبوه');
         }
       }
     });
 
-    document.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      if (typeof logSecurityViolation === 'function') {
-        logSecurityViolation('UNAUTHORIZED_ACTION', 'محاولة استخدام الزر الأيمن للفحص أو النسخ');
-      }
-    });
-
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
     document.addEventListener('keydown', (e) => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
         e.preventDefault();
-        if (typeof logSecurityViolation === 'function') {
-          logSecurityViolation('INSPECT_ATTEMPT', 'محاولة فتح أدوات المطورين وسحب السيرفرات');
-        }
       }
     });
 
-    // تنفيذ الوظائف عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', () => {
       checkUserSessionAndHeader();
       loadMoviesFromDatabase();
