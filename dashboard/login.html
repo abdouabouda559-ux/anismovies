@@ -87,6 +87,7 @@
       font-size: 0.85rem;
       display: none;
       text-align: center;
+      margin-bottom: 1rem;
     }
     .form-message.error {
       background-color: rgba(239, 68, 68, 0.15);
@@ -105,6 +106,7 @@
       margin-top: 1.5rem;
       color: #94a3b8;
       font-size: 0.85rem;
+      text-decoration: none;
     }
     .back-link:hover {
       color: #38bdf8;
@@ -128,9 +130,8 @@
     <a href="../index.html" class="back-link">← العودة إلى الموقع الرئيسي</a>
   </div>
 
-  <!-- Supabase CDN & Config -->
+  <!-- Supabase JS Client & Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- لاحظ مسار ملف الـ config لأنه في المجلد الرئيسي خارج dashboard -->
   <script src="../supabase-config.js"></script>
   <script>
     function showMessage(msg, isSuccess = false) {
@@ -157,26 +158,18 @@
 
       const user = data.user;
 
-      // 2. التحقق من جدول profiles أو جدول الصلاحيات لمعرفة هل المستخدم Admin
-      // (يمكننا اعتماد أن بريدك الإلكتروني الشخصي هو المشرف، أو فحص حقل is_admin في جدول profiles)
-      const { data: profile, profileError } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+      // 2. التحقق المباشر من إيميل المدير المعتمد رسمياً لحماية اللوحة بنسبة 100%
+      const adminEmail = "abdouabouda559@gmail.com";
 
-      // شرط التحقق: يمكنك هنا تحديد بريدك الإلكتروني كمشرف رئيسي أو التحقق من عمود is_admin
-      const isSuperAdmin = email === 'abdeljalil@anismovies.com' || (profile && profile.is_admin === true);
-
-      if (!isSuperAdmin) {
+      if (user.email !== adminEmail) {
         showMessage('عذراً، لا تمتلك صلاحيات المشرف للوصول إلى لوحة التحكم.', false);
         await supabaseClient.auth.signOut();
         return;
       }
 
-      showMessage('تم تسجيل الدخول بنجاح! جاري توجيهك للوحة التحكم...', true);
+      showMessage('تم تسجيل الدخول بنجاح! جاري التوجيه للوحة التحكم...', true);
       setTimeout(() => {
-        window.location.href = 'index.html'; // الانتقال للوحة التحكم الرئيسية
+        window.location.href = 'index.html'; // الانتقال لصفحة لوحة التحكم الرئيسية
       }, 1000);
     }
   </script>
