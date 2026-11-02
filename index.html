@@ -173,7 +173,6 @@
       gap: 4px;
       z-index: 999;
       
-      /* Animation states */
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px) scale(0.95);
@@ -385,7 +384,7 @@
       color: #94a3b8;
     }
 
-    /* Modals (Auth & Feature Modals) */
+    /* Modals */
     .custom-modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -533,20 +532,19 @@
     <div class="header-right">
       <div class="logo">أنيس موفيز</div>
       
-      <!-- أزرار تسجيل الدخول / إنشاء حساب (تظهر للزائر) -->
+      <!-- أزرار تسجيل الدخول / إنشاء حساب -->
       <div id="authButtonsContainer" class="header-auth-btns">
         <button class="btn-login" onclick="openAuthModal('login')">تسجيل الدخول</button>
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
       </div>
 
-      <!-- بروفايل المستخدم مع القائمة المنبثقة المتحركة التفاعلية -->
+      <!-- بروفايل المستخدم والقائمة المنبثقة التفاعلية -->
       <div id="userProfileWrapper" class="user-profile-wrapper">
         <div class="user-profile-badge" id="profileBadgeBtn">
           <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
           <span id="headerUsername">المستخدم</span>
         </div>
 
-        <!-- النافذة المنبثقة للبروفايل (تحتوي على الأزرار المطلوبة بالكامل) -->
         <div id="profileDropdownMenu" class="profile-dropdown-menu">
           <button class="dropdown-item" onclick="openFeatureModal('playlists')">📁 قوائم التشغيل</button>
           <button class="dropdown-item" onclick="openFeatureModal('watchlist')">❤️ المفضلة (Watchlist)</button>
@@ -563,7 +561,7 @@
     </div>
   </header>
 
-  <!-- Categories Bar (تصنيفات تفاعلية تعمل بالكامل) -->
+  <!-- Categories Bar -->
   <div class="categories-container">
     <div class="category-tags">
       <span class="tag active" onclick="filterByCategory('الكل', this)">الكل</span>
@@ -584,11 +582,11 @@
   <div class="movies-container">
     <h2 class="section-title">أحدث الإضافات</h2>
     <div class="movies-grid">
-      <!-- جلب الأفلام من Supabase ديناميكياً -->
+      <!-- جلب الأفلام ديناميكياً -->
     </div>
   </div>
 
-  <!-- Auth Modal (نافذة تسجيل الدخول / إنشاء حساب) -->
+  <!-- Auth Modal -->
   <div class="custom-modal-overlay" id="authModal">
     <div class="custom-modal-card">
       <button class="close-btn" onclick="closeAuthModal()">&times;</button>
@@ -597,7 +595,6 @@
         <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">إنشاء حساب</button>
       </div>
 
-      <!-- Login Form -->
       <form id="loginForm" class="auth-form" onsubmit="handleLoginSubmit(event)">
         <h3>مرحباً بك مجدداً</h3>
         <div id="loginMessage" class="form-message"></div>
@@ -606,7 +603,6 @@
         <button type="submit" class="submit-btn">دخول</button>
       </form>
 
-      <!-- Signup Form -->
       <form id="signupForm" class="auth-form" style="display: none;" onsubmit="handleSignupSubmit(event)">
         <h3>انضم إلينا الآن</h3>
         <div id="signupMessage" class="form-message"></div>
@@ -617,7 +613,7 @@
     </div>
   </div>
 
-  <!-- Feature Modal (نافذة عامة لعرض محتوى القوائم والمزيد عند النقر من القائمة المنبثقة) -->
+  <!-- Feature Modal (قوائم التشغيل، المفضلة، إعدادات الحساب، والمزيد) -->
   <div class="custom-modal-overlay" id="featureModal">
     <div class="custom-modal-card">
       <button class="close-btn" onclick="closeFeatureModal()">&times;</button>
@@ -632,14 +628,12 @@
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
-  <!-- Supabase CDN & Config Script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
     let allMovies = []; 
     let currentCategory = 'الكل';
 
-    // تجاوز الـ Alert الافتراضي
     window.alert = function(msg) {
       const loginForm = document.getElementById('loginForm');
       const activeForm = loginForm && loginForm.style.display !== 'none' ? 'login' : 'signup';
@@ -672,7 +666,7 @@
       hideFormMessages();
     }
 
-    // تفاعل القائمة المنبثقة للبروفايل (فتح وإغلاق دقيق ومضمون)
+    // تفاعل القائمة المنبثقة للبروفايل
     const profileBadgeBtn = document.getElementById('profileBadgeBtn');
     const profileDropdownMenu = document.getElementById('profileDropdownMenu');
 
@@ -683,7 +677,6 @@
       });
     }
 
-    // إغلاق القائمة المنبثقة والنوافذ عند النقر في أي مكان خارجها
     window.addEventListener('click', (e) => {
       const authModal = document.getElementById('authModal');
       const featureModal = document.getElementById('featureModal');
@@ -697,32 +690,171 @@
       }
     });
 
-    // التحكم بالنافذة المنبثقة للميزات (قوائم التشغيل، المفضلة، الإعدادات، والمزيد)
-    function openFeatureModal(type) {
+    // التحكم بالنافذة المنبثقة للميزات
+    async function openFeatureModal(type) {
       if (profileDropdownMenu) profileDropdownMenu.classList.remove('active');
       const modal = document.getElementById('featureModal');
       const titleEl = document.getElementById('featureModalTitle');
       const bodyEl = document.getElementById('featureModalBody');
 
       modal.style.display = 'flex';
+      bodyEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري التحميل...</p>';
+
+      const user = await checkUserSession();
+      if (!user) {
+        bodyEl.innerHTML = '<p style="text-align: center; color: #f87171;">يجب تسجيل الدخول أولاً للوصول إلى هذه الميزة.</p>';
+        return;
+      }
 
       if (type === 'playlists') {
         titleEl.textContent = '📁 قوائم التشغيل الخاصة بك';
-        bodyEl.innerHTML = '<p>ليس لديك أي قوائم تشغيل مضافة حالياً. يمكنك إنشاء قائمة جديدة قريباً لتنظيم أفلامك المفضلة.</p>';
+        const { data: playlists, error } = await supabaseClient
+          .from('playlists')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) {
+          bodyEl.innerHTML = '<p style="color: #f87171;">حدث خطأ أثناء جلب قوائم التشغيل.</p>';
+          return;
+        }
+
+        let html = `
+          <div style="margin-bottom: 1rem; display: flex; gap: 8px;">
+            <input type="text" id="newPlaylistTitle" placeholder="عنوان القائمة الجديدة..." style="flex: 1; background: #0f172a; border: 1px solid #334155; padding: 0.6rem; border-radius: 8px; color: #fff; outline: none;">
+            <button onclick="createNewPlaylistUser()" style="background: #38bdf8; color: #0f172a; border: none; padding: 0.6rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer;">إنشاء</button>
+          </div>
+          <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+        `;
+
+        if (!playlists || playlists.length === 0) {
+          html += '<p style="color: #94a3b8; text-align: center;">ليس لديك أي قوائم تشغيل حالياً.</p>';
+        } else {
+          playlists.forEach(pl => {
+            html += `<div style="background: #0f172a; padding: 0.75rem; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+              <span>${pl.title}</span>
+              <button onclick="deletePlaylist('${pl.id}')" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">حذف</button>
+            </div>`;
+          });
+        }
+        html += `</div>`;
+        bodyEl.innerHTML = html;
+
       } else if (type === 'watchlist') {
         titleEl.textContent = '❤️ قائمة المشاهدة (Watchlist)';
-        bodyEl.innerHTML = '<p>قائمة الأفلام التي قمت بحفظها للمشاهدة لاحقاً ستظهر هنا بداخل حسابك.</p>';
+        const { data: watchlist, error } = await supabaseClient
+          .from('watchlist')
+          .select('id, movies(title, poster_url)')
+          .eq('user_id', user.id);
+
+        if (error || !watchlist || watchlist.length === 0) {
+          bodyEl.innerHTML = '<p style="color: #94a3b8; text-align: center;">قائمة المشاهدة فارغة حالياً.</p>';
+          return;
+        }
+
+        let html = '<div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">';
+        watchlist.forEach(item => {
+          const m = item.movies;
+          if (!m) return;
+          html += `<div style="background: #0f172a; padding: 0.5rem; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; gap: 10px;">
+            <img src="${m.poster_url}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;">
+            <span style="font-weight: bold; font-size: 0.9rem;">${m.title}</span>
+          </div>`;
+        });
+        html += '</div>';
+        bodyEl.innerHTML = html;
+
       } else if (type === 'settings') {
         titleEl.textContent = '⚙️ إعدادات الحساب';
-        bodyEl.innerHTML = '<p>يمكنك من هنا تعديل اسم المستخدم، البريد الإلكتروني، أو تغيير كلمة المرور الخاصة بحسابك.</p>';
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        const currentName = profile ? profile.username || '' : '';
+        const currentAvatar = profile ? profile.avatar_url || '' : '';
+
+        bodyEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 4px;">اسم المستخدم</label>
+              <input type="text" id="settingsUsername" value="${currentName}" placeholder="أدخل اسمك الجديد..." style="width: 100%; background: #0f172a; border: 1px solid #334155; padding: 0.7rem; border-radius: 8px; color: #fff; outline: none;">
+            </div>
+            <div>
+              <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 4px;">رابط صورة البروفايل (Avatar URL)</label>
+              <input type="text" id="settingsAvatar" value="${currentAvatar}" placeholder="https://example.com/image.jpg" style="width: 100%; background: #0f172a; border: 1px solid #334155; padding: 0.7rem; border-radius: 8px; color: #fff; outline: none;">
+            </div>
+            <button onclick="saveAccountSettings()" style="background: #38bdf8; color: #0f172a; border: none; padding: 0.8rem; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.5rem;">حفظ التغييرات</button>
+          </div>
+        `;
+
       } else if (type === 'more') {
         titleEl.textContent = '✨ والمزيد حول أنيس موفيز';
-        bodyEl.innerHTML = '<p>منصة أنيس موفيز النسخة الاحترافية 1.0. تم تطويرها بواسطة عبد الجليل لتقديم تجربة مشاهدة أفلام سريعة وآمنة ومحمية ضد السحب والسرقة.</p>';
+        bodyEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.9rem;">
+            <p><strong>المنصة:</strong> Anis Movies v1.0</p>
+            <p><strong>المطور:</strong> عجايلية عبد الجليل</p>
+            <p><strong>التقنيات المستخدمة:</strong> HTML5, CSS3, JavaScript, Supabase Backend.</p>
+            <p style="color: #38bdf8; margin-top: 0.5rem;">شكراً لاستخدامك المنصة! نحن نحرص دائماً على توفير أقصى درجات الأمان والسرعة.</p>
+          </div>
+        `;
       }
     }
 
     function closeFeatureModal() {
       document.getElementById('featureModal').style.display = 'none';
+    }
+
+    async function createNewPlaylistUser() {
+      const titleInput = document.getElementById('newPlaylistTitle');
+      const title = titleInput ? titleInput.value.trim() : '';
+      if (!title) {
+        alert('يرجى كتابة عنوان القائمة أولاً.');
+        return;
+      }
+      const user = await checkUserSession();
+      if (!user) return;
+
+      const { error } = await supabaseClient
+        .from('playlists')
+        .insert([{ user_id: user.id, title: title }]);
+
+      if (error) {
+        alert('تعذر إنشاء القائمة.');
+      } else {
+        alert('تم إنشاء القائمة بنجاح!');
+        openFeatureModal('playlists');
+      }
+    }
+
+    async function deletePlaylist(playlistId) {
+      const { error } = await supabaseClient
+        .from('playlists')
+        .delete()
+        .eq('id', playlistId);
+
+      if (!error) {
+        openFeatureModal('playlists');
+      }
+    }
+
+    async function saveAccountSettings() {
+      const user = await checkUserSession();
+      if (!user) return;
+
+      const newUsername = document.getElementById('settingsUsername').value.trim();
+      const newAvatar = document.getElementById('settingsAvatar').value.trim();
+
+      const { error } = await supabaseClient
+        .from('profiles')
+        .upsert({ id: user.id, username: newUsername, avatar_url: newAvatar });
+
+      if (error) {
+        alert('حدث خطأ أثناء حفظ الإعدادات: ' + error.message);
+      } else {
+        alert('تم حفظ الإعدادات وتحديث البروفايل بنجاح! 🚀');
+        window.location.reload();
+      }
     }
 
     function showFormMessage(formType, message, isSuccess = false) {
@@ -733,7 +865,6 @@
       msgBox.style.display = 'block';
     }
 
-    // تسجيل الدخول الفعلي
     async function handleLoginSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -748,7 +879,6 @@
       }
     }
 
-    // إنشاء الحساب الفعلي
     async function handleSignupSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('signupEmail').value;
@@ -762,7 +892,6 @@
       }
     }
 
-    // جلب الأفلام من قاعدة البيانات
     async function loadMoviesFromDatabase() {
       const moviesGrid = document.querySelector('.movies-grid');
       if (!moviesGrid) return;
@@ -782,7 +911,6 @@
       }
     }
 
-    // عرض الأفلام
     function renderMovies(moviesList) {
       const moviesGrid = document.querySelector('.movies-grid');
       if (!moviesGrid) return;
@@ -817,7 +945,6 @@
       });
     }
 
-    // فلترة التصنيفات
     function filterByCategory(categoryName, element) {
       currentCategory = categoryName;
       document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('active'));
@@ -825,7 +952,6 @@
       applyFilters();
     }
 
-    // فلترة البحث
     function filterMovies() {
       applyFilters();
     }
@@ -842,7 +968,6 @@
       renderMovies(filtered);
     }
 
-    // فحص الجلسة والهيدر
     async function checkUserSessionAndHeader() {
       if (typeof checkUserSession !== 'function') return;
       const sessionUser = await checkUserSession();
@@ -875,25 +1000,6 @@
         if (userProfileWrapper) userProfileWrapper.style.display = 'none';
       }
     }
-
-    // حماية المنصة ضد السحب
-    let rapidActionsCount = 0;
-    window.addEventListener('click', () => {
-      rapidActionsCount++;
-      setTimeout(() => rapidActionsCount--, 1000);
-      if (rapidActionsCount > 25) {
-        if (typeof logSecurityViolation === 'function') {
-          logSecurityViolation('SCRAPING_ATTEMPT', 'نشاط بوت آلي مشبوه');
-        }
-      }
-    });
-
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-        e.preventDefault();
-      }
-    });
 
     document.addEventListener('DOMContentLoaded', () => {
       checkUserSessionAndHeader();
