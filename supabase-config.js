@@ -1,6 +1,6 @@
 // supabase-config.js - ملف الاتصال الموحد لـ Supabase
 
-const SUPABASE_URL = 'https://oebxbywghooghwetpx.supabase.co';
+const SUPABASE_URL = 'https://cnbxvtywghvogtvwztpd.supabase.co/';
 const SUPABASE_ANON_KEY = 'sb_publishable_vSbIc8x2FCTXZs3Q4gBfkA_dsBSHcK2';
 
 // تهيئة عميل Supabase
