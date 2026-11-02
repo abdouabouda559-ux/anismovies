@@ -116,15 +116,27 @@
       background-color: #0ea5e9;
     }
 
-    /* User Profile Badge in Header */
-    .user-profile-badge {
+    /* User Profile & Animated Dropdown Menu */
+    .user-profile-wrapper {
+      position: relative;
       display: none;
+    }
+
+    .user-profile-badge {
+      display: flex;
       align-items: center;
       gap: 10px;
       background-color: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(51, 65, 85, 0.8);
       padding: 0.3rem 0.8rem 0.3rem 0.4rem;
       border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .user-profile-badge:hover {
+      border-color: #38bdf8;
+      transform: scale(1.02);
     }
 
     .user-profile-badge img {
@@ -139,26 +151,74 @@
       font-size: 0.9rem;
       font-weight: bold;
       color: #38bdf8;
-      max-width: 120px;
+      max-width: 110px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .btn-logout {
-      background-color: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #f87171;
-      padding: 0.3rem 0.8rem;
+    /* Dropdown Menu with Smooth Animation */
+    .profile-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 12px);
+      left: 0;
+      width: 220px;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 110;
+      
+      /* Animation states */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .profile-dropdown-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      padding: 0.65rem 1rem;
+      text-align: right;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       cursor: pointer;
-      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       transition: all 0.2s ease;
     }
 
-    .btn-logout:hover {
-      background-color: rgba(239, 68, 68, 0.3);
+    .dropdown-item:hover {
+      background-color: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      transform: translateX(-4px);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background-color: #334155;
+      margin: 4px 0;
+    }
+
+    .dropdown-item.logout {
+      color: #f87171;
+    }
+    .dropdown-item.logout:hover {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
     }
 
     /* Floating Categories Bar */
@@ -206,6 +266,7 @@
       color: #0f172a;
       border-color: #38bdf8;
       font-weight: bold;
+      transform: translateY(-2px);
     }
 
     /* Hero Banner */
@@ -409,7 +470,6 @@
       margin-top: 0.5rem;
     }
 
-    /* صندوق الرسائل الأنيق بداخل الفورم */
     .form-message {
       padding: 0.75rem 1rem;
       border-radius: 8px;
@@ -475,27 +535,38 @@
         <button class="btn-signup" onclick="openAuthModal('signup')">إنشاء حساب</button>
       </div>
 
-      <!-- بروفايل المستخدم (يظهر عند تسجيل الدخول) -->
-      <div id="userProfileBadge" class="user-profile-badge">
-        <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
-        <span id="headerUsername">المستخدم</span>
-        <button class="btn-logout" onclick="handleSignOut()">خروج</button>
+      <!-- بروفايل المستخدم مع القائمة المنبثقة المتحركة -->
+      <div id="userProfileWrapper" class="user-profile-wrapper">
+        <div class="user-profile-badge" onclick="toggleProfileDropdown(event)">
+          <img id="headerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="البروفايل">
+          <span id="headerUsername">المستخدم</span>
+        </div>
+
+        <!-- النافذة المنبثقة للبروفايل -->
+        <div id="profileDropdownMenu" class="profile-dropdown-menu">
+          <button class="dropdown-item" onclick="alert('خاصية قوائم التشغيل قريباً')">📁 قوائم التشغيل</button>
+          <button class="dropdown-item" onclick="alert('خاصية المفضلة قريباً')">❤️ المفضلة (Watchlist)</button>
+          <button class="dropdown-item" onclick="alert('خاصية إعدادات الحساب قريباً')">⚙️ إعدادات الحساب</button>
+          <button class="dropdown-item" onclick="alert('مرحباً بك في منصة أنيس موفيز v1.0')">ℹ️ والمزيد</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout" onclick="handleSignOut()">🚪 تسجيل الخروج</button>
+        </div>
       </div>
     </div>
     
     <div class="search-box">
-      <input type="text" placeholder="ابحث عن فيلم أو مسلسل...">
+      <input type="text" id="searchInput" placeholder="ابحث عن فيلم أو مسلسل..." oninput="filterMovies()">
     </div>
   </header>
 
-  <!-- Categories Bar -->
+  <!-- Categories Bar (تصنيفات تفاعلية) -->
   <div class="categories-container">
     <div class="category-tags">
-      <span class="tag active">الكل</span>
-      <span class="tag">أكشن</span>
-      <span class="tag">دراما</span>
-      <span class="tag">أنمي</span>
-      <span class="tag">خيال علمي</span>
+      <span class="tag active" onclick="filterByCategory('الكل', this)">الكل</span>
+      <span class="tag" onclick="filterByCategory('أكشن', this)">أكشن</span>
+      <span class="tag" onclick="filterByCategory('دراما', this)">دراما</span>
+      <span class="tag" onclick="filterByCategory('أنمي', this)">أنمي</span>
+      <span class="tag" onclick="filterByCategory('خيال علمي', this)">خيال علمي</span>
     </div>
   </div>
 
@@ -546,11 +617,14 @@
     <p>لمشاهدة المزيد من المحتوى، زر موقعنا anismovies.iceiy.com. جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
 
-  <!-- Supabase CDN & Global Config Script -->
+  <!-- Supabase CDN & Config Script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script>
-    // إخفاء الـ Alert تماماً وتحويله تلقائياً لرسالة داخل الفورم
+    let allMovies = []; // تخزين جميع الأفلام للفلترة
+    let currentCategory = 'الكل';
+
+    // تجاوز الـ Alert الافتراضي لرسائل الفورم
     window.alert = function(msg) {
       const loginForm = document.getElementById('loginForm');
       const activeForm = loginForm && loginForm.style.display !== 'none' ? 'login' : 'signup';
@@ -583,10 +657,24 @@
       hideFormMessages();
     }
 
-    window.onclick = (e) => {
+    // إدارة النافذة المنبثقة للبروفايل والأنميشن
+    function toggleProfileDropdown(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('profileDropdownMenu');
+      menu.classList.toggle('active');
+    }
+
+    // إغلاق قائمة البروفايل عند النقر خارجها
+    window.addEventListener('click', (e) => {
       const authModal = document.getElementById('authModal');
       if (e.target === authModal) closeAuthModal();
-    }
+
+      const profileWrapper = document.getElementById('userProfileWrapper');
+      const profileMenu = document.getElementById('profileDropdownMenu');
+      if (profileWrapper && !profileWrapper.contains(e.target)) {
+        profileMenu.classList.remove('active');
+      }
+    });
 
     function showFormMessage(formType, message, isSuccess = false) {
       const msgBox = document.getElementById(formType + 'Message');
@@ -596,7 +684,7 @@
       msgBox.style.display = 'block';
     }
 
-    // معالجة تسجيل الدخول الفعلي عبر Supabase
+    // معالجة تسجيل الدخول الفعلي
     async function handleLoginSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -606,12 +694,12 @@
       if (error) {
         showFormMessage('login', error.message, false);
       } else {
-        showFormMessage('login', 'تم تسجيل الدخول بنجاح! جاري التوجيه...', true);
+        showFormMessage('login', 'تم تسجيل الدخول بنجاح! جاري التحديث...', true);
         setTimeout(() => window.location.reload(), 1000);
       }
     }
 
-    // معالجة إنشاء الحساب الفعلي عبر Supabase
+    // معالجة إنشاء الحساب الفعلي
     async function handleSignupSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('signupEmail').value;
@@ -621,11 +709,128 @@
       if (error) {
         showFormMessage('signup', error.message, false);
       } else {
-        showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يجدر التحقق من بريدك أو تسجيل الدخول.', true);
+        showFormMessage('signup', 'تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.', true);
       }
     }
 
-    // حماية واجهة الموقع من السحب الآلي وفحص العناصر (Scraping Protection)
+    // جلب الأفلام من قاعدة البيانات وتخزينها
+    async function loadMoviesFromDatabase() {
+      const moviesGrid = document.querySelector('.movies-grid');
+      if (!moviesGrid) return;
+
+      try {
+        const { data: movies, error } = await supabaseClient
+          .from('movies')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allMovies = movies || [];
+        renderMovies(allMovies);
+      } catch (err) {
+        console.error('خطأ أثناء جلب البيانات:', err.message);
+      }
+    }
+
+    // دالة عرض الأفلام في الشبكة
+    function renderMovies(moviesList) {
+      const moviesGrid = document.querySelector('.movies-grid');
+      if (!moviesGrid) return;
+
+      if (!moviesList || moviesList.length === 0) {
+        moviesGrid.innerHTML = '<p style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 2rem;">لا توجد أفلام مطابقة للبحث أو التصنيف حالياً.</p>';
+        return;
+      }
+
+      moviesGrid.innerHTML = '';
+      moviesList.forEach(movie => {
+        moviesGrid.innerHTML += `
+          <div class="movie-card">
+            <button onclick="toggleWatchlist(${movie.id})" style="position: absolute; top: 10px; left: 10px; background: rgba(15,23,42,0.8); border: none; color: #38bdf8; padding: 6px; border-radius: 50%; cursor: pointer; z-index: 10;" title="إضافة إلى قائمة المشاهدة">
+              ❤️
+            </button>
+            <a href="watch.html?id=${movie.id}">
+              <div class="poster-box">
+                <span class="badge">★ ${movie.rating || 'N/A'}</span>
+                <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'}" alt="${movie.title}">
+              </div>
+              <div class="movie-info">
+                <div class="movie-title">${movie.title}</div>
+                <div class="movie-meta">
+                  <span>${movie.release_year || ''}</span>
+                  <span>${movie.category || ''}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        `;
+      });
+    }
+
+    // تصفية الأفلام حسب التصنيف
+    function filterByCategory(categoryName, element) {
+      currentCategory = categoryName;
+      
+      // تحديث الأزرار النشطة (Active Tag)
+      document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('active'));
+      element.classList.add('active');
+
+      applyFilters();
+    }
+
+    // تصفية الأفلام حسب البحث والتصنيف معاً
+    function filterMovies() {
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      let filtered = allMovies.filter(movie => {
+        const matchesCategory = (currentCategory === 'الكل') || (movie.category && movie.category.trim() === currentCategory);
+        const matchesSearch = !searchQuery || (movie.title && movie.title.toLowerCase().includes(searchQuery));
+        return matchesCategory && matchesSearch;
+      });
+
+      renderMovies(filtered);
+    }
+
+    // فحص جلسة المستخدم وتحديث الهيدر
+    async function checkUserSessionAndHeader() {
+      if (typeof checkUserSession !== 'function') return;
+      const sessionUser = await checkUserSession();
+      const authButtonsContainer = document.getElementById('authButtonsContainer');
+      const userProfileWrapper = document.getElementById('userProfileWrapper');
+      const headerUsername = document.getElementById('headerUsername');
+      const headerUserAvatar = document.getElementById('headerUserAvatar');
+
+      if (sessionUser) {
+        if (authButtonsContainer) authButtonsContainer.style.display = 'none';
+        if (userProfileWrapper) userProfileWrapper.style.display = 'block';
+
+        const userId = sessionUser.id;
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .single();
+
+        if (profile) {
+          if (headerUsername) headerUsername.textContent = profile.username || sessionUser.email.split('@')[0];
+          if (headerUserAvatar && profile.avatar_url) {
+            headerUserAvatar.src = profile.avatar_url;
+          }
+        } else {
+          if (headerUsername) headerUsername.textContent = sessionUser.email.split('@')[0];
+        }
+      } else {
+        if (authButtonsContainer) authButtonsContainer.style.display = 'flex';
+        if (userProfileWrapper) userProfileWrapper.style.display = 'none';
+      }
+    }
+
+    // حماية واجهة الموقع من السحب الآلي وفحص العناصر
     let rapidActionsCount = 0;
     window.addEventListener('click', () => {
       rapidActionsCount++;
@@ -655,8 +860,8 @@
 
     // تنفيذ الوظائف عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', () => {
-      if (typeof checkUserSessionAndHeader === 'function') checkUserSessionAndHeader();
-      if (typeof loadMoviesFromDatabase === 'function') loadMoviesFromDatabase();
+      checkUserSessionAndHeader();
+      loadMoviesFromDatabase();
     });
   </script>
 </body>
