@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة الأفلام - لوحة التحكم</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .admin-header {
+      background-color: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-header h1 {
+      font-size: 1.3rem;
+      color: #38bdf8;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-logout {
+      background-color: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    .btn-site {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .btn-site:hover {
+      color: #38bdf8;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      width: 100%;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #f1f5f9;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 0.3rem;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      padding: 0.75rem;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: #38bdf8;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn-submit:hover {
+      background-color: #0ea5e9;
+    }
+
+    /* Movies Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #334155;
+      font-size: 0.85rem;
+    }
+
+    th {
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .poster-img {
+      width: 45px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .btn-delete {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-delete:hover {
+      background-color: #ef4444;
+      color: #fff;
+    }
+
+    .alert {
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .alert-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .alert-error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="admin-header">
+    <h1>لوحة تحكم أنيس موفيز</h1>
+    <div class="header-actions">
+      <a href="../index.html" class="btn-site">الذهاب للموقع الرئيسي ↗</a>
+      <button onclick="logoutAdmin()" class="btn-logout">تسجيل الخروج</button>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <div class="container">
+    <div id="alertBox" class="alert"></div>
+
+    <div class="grid-layout">
+      <!-- Add Movie Form -->
+      <div class="card">
+        <h2>إضافة فيلم جديد</h2>
+        <form id="addMovieForm" onsubmit="handleAddMovie(event)">
+          <div class="form-group">
+            <label>عنوان الفيلم</label>
+            <input type="text" id="movieTitle" required placeholder="مثال: Inception">
+          </div>
+          <div class="form-group">
+            <label>الوصف</label>
+            <textarea id="movieDesc" rows="3" placeholder="قصة الفيلم..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>رابط الملصق (Poster URL)</label>
+            <input type="url" id="moviePoster" required placeholder="https://image.url/poster.jpg">
+          </div>
+          <div class="form-group">
+            <label>رابط الفيديو / المشغّل (Video URL)</label>
+            <input type="url" id="movieVideo" required placeholder="https://stream.url/video.mp4">
+          </div>
+          <div class="form-group">
+            <label>سنة الإنتاج</label>
+            <input type="number" id="movieYear" value="2026">
+          </div>
+          <button type="submit" class="btn-submit">حفظ الفيلم</button>
+        </form>
+      </div>
+
+      <!-- Movies List Table -->
+      <div class="card">
+        <h2>الأفلام المتاحة حالياً</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>الصورة</th>
+              <th>العنوان</th>
+              <th>السنة</th>
+              <th>الإجراء</th>
+            </tr>
+          </thead>
+          <tbody id="moviesTableBody">
+            <tr>
+              <td colspan="4" style="text-align: center; color: #94a3b8;">جاري تحميل الأفلام...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS Client & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script>
+    const ADMIN_EMAIL = "abdouabouda559@gmail.com";
+
+    // 1. الحماية الأوتوماتيكية للصفحة
+    async function checkAdminAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || session.user.email !== ADMIN_EMAIL) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadMovies();
+    }
+
+    function showAlert(msg, isSuccess = true) {
+      const box = document.getElementById('alertBox');
+      box.className = 'alert ' + (isSuccess ? 'alert-success' : 'alert-error');
+      box.innerText = msg;
+      box.style.display = 'block';
+      setTimeout(() => box.style.display = 'none', 4000);
+    }
+
+    // 2. تحميل الأفلام من Supabase
+    async function loadMovies() {
+      const tbody = document.getElementById('moviesTableBody');
+      const { data: movies, error } = await supabaseClient
+        .from('movies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="4">خطأ في تحميل الأفلام: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (!movies || movies.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">لا توجد أفلام مضافة حتى الآن.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = movies.map(m => `
+        <tr>
+          <td><img src="${m.poster_url || 'https://via.placeholder.com/45x60'}" class="poster-img" alt="${m.title}"></td>
+          <td><strong>${m.title}</strong></td>
+          <td>${m.year || 'N/A'}</td>
+          <td>
+            <button class="btn-delete" onclick="deleteMovie('${m.id}')">حذف</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 3. إضافة فيلم جديد
+    async function handleAddMovie(e) {
+      e.preventDefault();
+      const title = document.getElementById('movieTitle').value.trim();
+      const description = document.getElementById('movieDesc').value.trim();
+      const poster_url = document.getElementById('moviePoster').value.trim();
+      const video_url = document.getElementById('movieVideo').value.trim();
+      const year = parseInt(document.getElementById('movieYear').value) || 2026;
+
+      const { data, error } = await supabaseClient
+        .from('movies')
+        .insert([{ title, description, poster_url, video_url, year }]);
+
+      if (error) {
+        showAlert('فشل إضافة الفيلم: ' + error.message, false);
+      } else {
+        showAlert('تمت إضافة الفيلم بنجاح!', true);
+        document.getElementById('addMovieForm').reset();
+        loadMovies();
+      }
+    }
+
+    // 4. حذف فيلم
+    async function deleteMovie(id) {
+      if (!confirm('هل أنت تأكد من حذف هذا الفيلم نهائياً؟')) return;
+
+      const { error } = await supabaseClient
+        .from('movies')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        showAlert('فشل حذف الفيلم: ' + error.message, false);
+      } else {
+        showAlert('تم حذف الفيلم بنجاح.', true);
+        loadMovies();
+      }
+    }
+
+    // 5. تسجيل الخروج
+    async function logoutAdmin() {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    // تشغيل الفحص عند فتح الصفحة
+    checkAdminAuth();
+  </script>
+</body>
+</html>
