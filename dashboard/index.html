@@ -223,7 +223,7 @@
             <input type="url" id="moviePoster" required placeholder="https://image.url/poster.jpg">
           </div>
           <div class="form-group">
-            <label>رابط الفيديو / المشغّل (Video URL)</label>
+            <label>رابط الفيديو / المشغّل (Server 1 URL)</label>
             <input type="url" id="movieVideo" required placeholder="https://stream.url/video.mp4">
           </div>
           <div class="form-group">
@@ -302,7 +302,7 @@
         <tr>
           <td><img src="${m.poster_url || 'https://via.placeholder.com/45x60'}" class="poster-img" alt="${m.title}"></td>
           <td><strong>${m.title}</strong></td>
-          <td>${m.year || 'N/A'}</td>
+          <td>${m.release_year || 'N/A'}</td>
           <td>
             <button class="btn-delete" onclick="deleteMovie('${m.id}')">حذف</button>
           </td>
@@ -310,18 +310,18 @@
       `).join('');
     }
 
-    // 3. إضافة فيلم جديد
+    // 3. إضافة فيلم جديد (محدّث ليتناسب مع أسماء الأعمدة server1_url و release_year)
     async function handleAddMovie(e) {
       e.preventDefault();
       const title = document.getElementById('movieTitle').value.trim();
       const description = document.getElementById('movieDesc').value.trim();
       const poster_url = document.getElementById('moviePoster').value.trim();
-      const video_url = document.getElementById('movieVideo').value.trim();
-      const year = parseInt(document.getElementById('movieYear').value) || 2026;
+      const server1_url = document.getElementById('movieVideo').value.trim();
+      const release_year = parseInt(document.getElementById('movieYear').value) || 2026;
 
       const { data, error } = await supabaseClient
         .from('movies')
-        .insert([{ title, description, poster_url, video_url, year }]);
+        .insert([{ title, description, poster_url, server1_url, release_year }]);
 
       if (error) {
         showAlert('فشل إضافة الفيلم: ' + error.message, false);
@@ -334,7 +334,7 @@
 
     // 4. حذف فيلم
     async function deleteMovie(id) {
-      if (!confirm('هل أنت تأكد من حذف هذا الفيلم نهائياً؟')) return;
+      if (!confirm('هل أنت متأكد من حذف هذا الفيلم نهائياً؟')) return;
 
       const { error } = await supabaseClient
         .from('movies')
