@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة توليد الفيديو بالذكاء الاصطناعي</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text-main);
+      font-size: 1rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-color);
+    }
+
+    .options {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 24px;
+    }
+
+    .option-item {
+      flex: 1;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button:disabled {
+      background-color: var(--border-color);
+      cursor: not-allowed;
+    }
+
+    /* قسم الحالة والتقدم */
+    .status-container {
+      margin-top: 24px;
+      display: none;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background-color: var(--bg-color);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background-color: var(--accent-color);
+      transition: width 0.4s ease;
+    }
+
+    .status-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* قسم العرض الناتج */
+    .result-container {
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>أنشئ فيديو بالذكاء الاصطناعي</h1>
+    <p class="subtitle">اكتب الوصف وسيقوم Manus API بتوليد الفيديو بالكامل</p>
+
+    <div class="input-group">
+      <label for="promptInput">وصف الفيديو (Prompt):</label>
+      <textarea id="promptInput" placeholder="اكتب هنا ما تريد أن يتضمنه الفيديو..."></textarea>
+    </div>
+
+    <div class="options">
+      <div class="option-item">
+        <label for="aspectRatio">أبعاد الفيديو:</label>
+        <select id="aspectRatio">
+          <option value="16:9">أفقي 16:9 (YouTube)</option>
+          <option value="9:16">عمودي 9:16 (Reels / TikTok)</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="generateBtn" onclick="startGeneration()">بدء إنشاء الفيديو</button>
+
+    <!-- شريط التقدم -->
+    <div id="statusContainer" class="status-container">
+      <div class="progress-bar-bg">
+        <div id="progressBar" class="progress-bar-fill"></div>
+      </div>
+      <p id="statusText" class="status-text">جاري إرسال الطلب...</p>
+    </div>
+
+    <!-- عرض الفيديو عند الانتهاء -->
+    <div id="resultContainer" class="result-container">
+      <h3>تم التوليد بنجاح!</h3>
+      <video id="outputVideo" controls></video>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
